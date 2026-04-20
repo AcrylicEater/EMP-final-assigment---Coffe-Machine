@@ -12,6 +12,7 @@ GEN_CMDS__FLAG :=
 ORDERED_OBJS += \
 "./LCD_frt.obj" \
 "./heap_2.obj" \
+"./keypad_frt.obj" \
 "./list.obj" \
 "./main.obj" \
 "./port.obj" \
@@ -150,8 +151,8 @@ Final\ assigment.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "LCD_frt.obj" "heap_2.obj" "list.obj" "main.obj" "port.obj" "portasm.obj" "queue.obj" "startup_frt.obj" "systick_frt.obj" "tasks.obj" 
-	-$(RM) "LCD_frt.d" "heap_2.d" "list.d" "main.d" "port.d" "queue.d" "startup_frt.d" "systick_frt.d" "tasks.d" 
+	-$(RM) "LCD_frt.obj" "heap_2.obj" "keypad_frt.obj" "list.obj" "main.obj" "port.obj" "portasm.obj" "queue.obj" "startup_frt.obj" "systick_frt.obj" "tasks.obj" 
+	-$(RM) "LCD_frt.d" "heap_2.d" "keypad_frt.d" "list.d" "main.d" "port.d" "queue.d" "startup_frt.d" "systick_frt.d" "tasks.d" 
 	-$(RM) "portasm.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
