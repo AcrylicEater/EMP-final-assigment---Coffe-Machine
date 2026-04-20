@@ -24,7 +24,7 @@ main.obj: X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/mpu_wrappers.h
 main.obj: X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/task.h
 main.obj: X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/list.h
 main.obj: X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/queue.h
-main.obj: X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/semphr.h
+main.obj: ../LCD_frt.h
 
 ../main.c:
 
@@ -74,5 +74,5 @@ X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/list.h:
 
 X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/queue.h:
 
-X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/semphr.h:
+../LCD_frt.h:
 

@@ -12,6 +12,7 @@ ASM_SRCS += \
 ../portasm.asm 
 
 C_SRCS += \
+../LCD_frt.c \
 ../heap_2.c \
 ../list.c \
 ../main.c \
@@ -22,6 +23,7 @@ C_SRCS += \
 ../tasks.c 
 
 C_DEPS += \
+./LCD_frt.d \
 ./heap_2.d \
 ./list.d \
 ./main.d \
@@ -32,6 +34,7 @@ C_DEPS += \
 ./tasks.d 
 
 OBJS += \
+./LCD_frt.obj \
 ./heap_2.obj \
 ./list.obj \
 ./main.obj \
@@ -46,6 +49,7 @@ ASM_DEPS += \
 ./portasm.d 
 
 OBJS__QUOTED += \
+"LCD_frt.obj" \
 "heap_2.obj" \
 "list.obj" \
 "main.obj" \
@@ -57,6 +61,7 @@ OBJS__QUOTED += \
 "tasks.obj" 
 
 C_DEPS__QUOTED += \
+"LCD_frt.d" \
 "heap_2.d" \
 "list.d" \
 "main.d" \
@@ -70,6 +75,7 @@ ASM_DEPS__QUOTED += \
 "portasm.d" 
 
 C_SRCS__QUOTED += \
+"../LCD_frt.c" \
 "../heap_2.c" \
 "../list.c" \
 "../main.c" \
