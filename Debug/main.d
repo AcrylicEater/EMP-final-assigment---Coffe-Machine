@@ -27,6 +27,7 @@ main.obj: X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/queue.h
 main.obj: X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/semphr.h
 main.obj: ../LCD_frt.h
 main.obj: ../keypad_frt.h
+main.obj: ../encoder_frt.h
 
 ../main.c:
 
@@ -81,4 +82,6 @@ X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/semphr.h:
 ../LCD_frt.h:
 
 ../keypad_frt.h:
+
+../encoder_frt.h:
 

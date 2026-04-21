@@ -70,7 +70,7 @@ void keypad_task(void *pvParameters){
     }
 }
 
-void GPIOE_Handler(void)
+void GPIOE_int_Handler(void)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 

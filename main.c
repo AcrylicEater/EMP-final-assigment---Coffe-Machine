@@ -10,6 +10,7 @@
 //####### project includes #######
 #include "LCD_frt.h"
 #include "keypad_frt.h"
+#include "encoder_frt.h"
 
 
 //####### global defines
@@ -25,10 +26,38 @@
 //####### global handlers #######
 extern QueueHandle_t lcd_queue;
 extern QueueHandle_t keypad_queue;
+extern QueueHandle_t encoder_queue;
 
 extern SemaphoreHandle_t keypad_sem;
+extern SemaphoreHandle_t encoder_sem;
 
 
+
+//###### TEMPORARY FOR DEBUG #####
+#define LED_MASK  0b00001110
+enum led_Color {
+    BLACK = 0,
+    RED = 0b00000010,
+    BLUE = 0b00000100,
+    PINK = 0b00000110,
+    GREEN = 0b00001000,
+    YELLOW = 0b00001010,
+    CYAN = 0b00001100,
+    WHITE = 0b00001110,
+};
+
+void init_RGB(void){
+    SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOF; //initialize GPIOF
+    uint32_t dummy = SYSCTL_RCGC2_R;
+    GPIO_PORTF_DIR_R |= LED_MASK; // set proper PORTF bits to output
+    GPIO_PORTF_DEN_R |= LED_MASK; // set digital function
+}
+
+void set_Color(led_Color){
+    GPIO_PORTF_DATA_R = (GPIO_PORTF_DATA_R & ~(LED_MASK)) | led_Color; //set corresponding RGB bits on/off
+}
+
+//###### END TEMPORARY #####
 
 
 void dummy_Task(void *pvParameters){
@@ -55,13 +84,28 @@ void dummy_Task2(void *pvParameters){
     }
 }
 
+void dummy_Task3(void *pvParameters){
+    init_RGB();
+    set_Color(BLACK);
+    int8_t dir;
+    while(1){
+        if(xQueueReceive(encoder_queue, &dir, portMAX_DELAY) == pdPASS){
+            set_Color( (dir == -1) ? CYAN : PINK );
+            vTaskDelay(pdMS_TO_TICKS(250));
+            set_Color(BLACK);
+        }
+    }
+}
+
 
 int main(void)
 {
     lcd_queue = xQueueCreate(QUEUE_LEN,sizeof(char));
     keypad_queue = xQueueCreate(QUEUE_LEN,sizeof(char));
+    encoder_queue = xQueueCreate(QUEUE_LEN,sizeof(int8_t));
 
     keypad_sem = xSemaphoreCreateBinary();
+    encoder_sem = xSemaphoreCreateBinary();
 
 
     xTaskCreate(dummy_Task, "Dummy Task", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
@@ -70,6 +114,8 @@ int main(void)
     xTaskCreate(keypad_task, "Keypad Task", USERTASK_STACK_SIZE, NULL, PRIO_HIGH, NULL );
     xTaskCreate(dummy_Task2, "Dummy Task 2", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
 
+    xTaskCreate(encoder_Task, "Encoder Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, NULL);
+    xTaskCreate(dummy_Task3, "Dummy Task 3", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
 
     vTaskStartScheduler();
 

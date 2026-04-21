@@ -51,7 +51,7 @@ void keypad_task(void *pvParameters);
 * Function: run task for keypad
 ***********************************************/
 
-void GPIOE_Handler(void);
+void GPIOE_int_Handler(void);
 
 /***************** End of module **************/
 #endif

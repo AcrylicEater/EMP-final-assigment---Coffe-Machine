@@ -1,4 +1,5 @@
 "./LCD_frt.obj"
+"./encoder_frt.obj"
 "./heap_2.obj"
 "./keypad_frt.obj"
 "./list.obj"
