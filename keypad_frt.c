@@ -39,6 +39,7 @@ uint8_t port_to_index(uint8_t p_data){
     return index;
 }
 
+//The state and the delay is used for debouncing
 void keypad_task(void *pvParameters){
     static uint8_t state = STATE_RELEASED;
     keypad_init();
@@ -59,10 +60,11 @@ void keypad_task(void *pvParameters){
                 col = port_to_index(col>>2);
                 char key = keypad_map[row][col];
                 xQueueSend(keypad_queue, &key, portMAX_DELAY);
-                vTaskDelay(pdMS_TO_TICKS(10));
+
             } else if(!row && (state == STATE_PRESSED)){
                 state = STATE_RELEASED;
             }
+            vTaskDelay(pdMS_TO_TICKS(10));
             GPIO_PORTE_IM_R |= KEYPAD_Y_MASK; //re-enable interrupt
         }
     }
