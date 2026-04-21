@@ -10,13 +10,15 @@ This is the final assigment for the EMP course at sdu spring semester 2026
 - - Task diagram
 
 ### Hardware tasks
-- task for writing to LCD
+- ~~task for writing to LCD~~
 - reading button pushes
 - - Interrupt?
-- reading encoder
-- - Interrupt?
-- reading keypad
-- - Interrupt?
+- ~~reading encoder~~
+- - ~~Interrupt?~~
+- ~~reading keypad~~
+- - ~~Interrupt?~~
+- Send to UART
+- Read from UART
 
 ### Logic task
 - User flow task
