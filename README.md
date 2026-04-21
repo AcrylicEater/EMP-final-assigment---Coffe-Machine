@@ -22,3 +22,4 @@ This is the final assigment for the EMP course at sdu spring semester 2026
 
 ### Logic task
 - User flow task
+- RTC task, that keeps time for transaction logging
