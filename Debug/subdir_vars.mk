@@ -22,7 +22,8 @@ C_SRCS += \
 ../queue.c \
 ../startup_frt.c \
 ../systick_frt.c \
-../tasks.c 
+../tasks.c \
+../uart_frt.c 
 
 C_DEPS += \
 ./LCD_frt.d \
@@ -35,7 +36,8 @@ C_DEPS += \
 ./queue.d \
 ./startup_frt.d \
 ./systick_frt.d \
-./tasks.d 
+./tasks.d \
+./uart_frt.d 
 
 OBJS += \
 ./LCD_frt.obj \
@@ -49,7 +51,8 @@ OBJS += \
 ./queue.obj \
 ./startup_frt.obj \
 ./systick_frt.obj \
-./tasks.obj 
+./tasks.obj \
+./uart_frt.obj 
 
 ASM_DEPS += \
 ./portasm.d 
@@ -66,7 +69,8 @@ OBJS__QUOTED += \
 "queue.obj" \
 "startup_frt.obj" \
 "systick_frt.obj" \
-"tasks.obj" 
+"tasks.obj" \
+"uart_frt.obj" 
 
 C_DEPS__QUOTED += \
 "LCD_frt.d" \
@@ -79,7 +83,8 @@ C_DEPS__QUOTED += \
 "queue.d" \
 "startup_frt.d" \
 "systick_frt.d" \
-"tasks.d" 
+"tasks.d" \
+"uart_frt.d" 
 
 ASM_DEPS__QUOTED += \
 "portasm.d" 
@@ -95,7 +100,8 @@ C_SRCS__QUOTED += \
 "../queue.c" \
 "../startup_frt.c" \
 "../systick_frt.c" \
-"../tasks.c" 
+"../tasks.c" \
+"../uart_frt.c" 
 
 ASM_SRCS__QUOTED += \
 "../portasm.asm" 

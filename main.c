@@ -11,6 +11,7 @@
 #include "LCD_frt.h"
 #include "keypad_frt.h"
 #include "encoder_frt.h"
+#include "uart_frt.h"
 
 
 //####### global defines
@@ -27,6 +28,7 @@
 extern QueueHandle_t lcd_queue;
 extern QueueHandle_t keypad_queue;
 extern QueueHandle_t encoder_queue;
+extern QueueHandle_t uart_tx_queue;
 
 extern SemaphoreHandle_t keypad_sem;
 extern SemaphoreHandle_t encoder_sem;
@@ -97,15 +99,25 @@ void dummy_Task3(void *pvParameters){
     }
 }
 
+void dummy_Task4(void *pvParameters){
+    while(1){
+        uart0_queueString("Carl test\n");
+        vTaskDelay(pdMS_TO_TICKS(1750));
+    }
+}
+
 
 int main(void)
 {
     lcd_queue = xQueueCreate(QUEUE_LEN,sizeof(char));
     keypad_queue = xQueueCreate(QUEUE_LEN,sizeof(char));
     encoder_queue = xQueueCreate(QUEUE_LEN,sizeof(int8_t));
+    uart_tx_queue = xQueueCreate(TX_QUEUE_LEN,sizeof(char));
 
     keypad_sem = xSemaphoreCreateBinary();
     encoder_sem = xSemaphoreCreateBinary();
+
+    uart0_init(19200, DBITS_8, SBIT_1, NO_PARITY); //must be here for some reason or the mcu crashes
 
 
     xTaskCreate(dummy_Task, "Dummy Task", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
@@ -116,6 +128,9 @@ int main(void)
 
     xTaskCreate(encoder_Task, "Encoder Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, NULL);
     xTaskCreate(dummy_Task3, "Dummy Task 3", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
+
+    xTaskCreate(uart_tx_Task, "Uart TX Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
+    xTaskCreate(dummy_Task4, "Dummy Task 4", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
 
     vTaskStartScheduler();
 

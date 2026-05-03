@@ -10,5 +10,6 @@
 "./startup_frt.obj"
 "./systick_frt.obj"
 "./tasks.obj"
+"./uart_frt.obj"
 "../tm4c123gh6pm.cmd"
 -llibc.a

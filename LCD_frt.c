@@ -149,9 +149,6 @@ void lcd_queueString(char* string){
         xQueueSend(lcd_queue, &c, 1000);
         string++;
     }
-
-
-
 }
 
 void lcd_Task(void *pvParameters){

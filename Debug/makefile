@@ -22,6 +22,7 @@ ORDERED_OBJS += \
 "./startup_frt.obj" \
 "./systick_frt.obj" \
 "./tasks.obj" \
+"./uart_frt.obj" \
 "../tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -152,8 +153,8 @@ Final\ assigment.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "LCD_frt.obj" "encoder_frt.obj" "heap_2.obj" "keypad_frt.obj" "list.obj" "main.obj" "port.obj" "portasm.obj" "queue.obj" "startup_frt.obj" "systick_frt.obj" "tasks.obj" 
-	-$(RM) "LCD_frt.d" "encoder_frt.d" "heap_2.d" "keypad_frt.d" "list.d" "main.d" "port.d" "queue.d" "startup_frt.d" "systick_frt.d" "tasks.d" 
+	-$(RM) "LCD_frt.obj" "encoder_frt.obj" "heap_2.obj" "keypad_frt.obj" "list.obj" "main.obj" "port.obj" "portasm.obj" "queue.obj" "startup_frt.obj" "systick_frt.obj" "tasks.obj" "uart_frt.obj" 
+	-$(RM) "LCD_frt.d" "encoder_frt.d" "heap_2.d" "keypad_frt.d" "list.d" "main.d" "port.d" "queue.d" "startup_frt.d" "systick_frt.d" "tasks.d" "uart_frt.d" 
 	-$(RM) "portasm.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
