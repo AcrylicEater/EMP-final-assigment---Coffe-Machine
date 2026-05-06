@@ -21,14 +21,29 @@ timestamp_t get_timestamp(){
     return return_val;
 }
 
+
 const char *options[] = {
-    "1: ESPRESSO",
-    "2: LATTE   ",
-    "3: FILTER  "
+    "1: ESPRESSO   kr",
+    "2: LATTE      kr",
+    "3: FILTER  kr/cl"
 };
 
+const uint8_t prices[] = {15, 27, 3};
 
-void select_product(MACHINE_STATES_t* state_p, COFFEE_t* select_product_p){
+void write_price(uint8_t price, char start_index){
+    char ch;
+    uint16_t div = 1;
+    while(price / div > 0){
+      xQueueSend(lcd_queue, &start_index, 1000);
+      ch = (((price / div) % 10) + '0');
+      xQueueSend(lcd_queue, &ch, 1000);
+      div *= 10;
+      start_index -= 1;
+    }
+}
+
+
+void select_product(MACHINE_STATES_t* state_p, COFFEE_t* selected_product_p){
     char key;
     char msg = CLEAR_LCD;
     xQueueSend(lcd_queue, &msg, 1000);
@@ -39,6 +54,7 @@ void select_product(MACHINE_STATES_t* state_p, COFFEE_t* select_product_p){
     while(*state_p==SEL_PRODUCT){
         xQueueSend(lcd_queue, &msg, 1000); // go to start of second line
         lcd_queueString(options[current_option]);
+        write_price(prices[current_option], (current_option == 2) ? 26 : 29);
 
         //wait for key or one second timeout
         if(xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(1000)) == pdPASS){
@@ -68,9 +84,6 @@ void select_product(MACHINE_STATES_t* state_p, COFFEE_t* select_product_p){
 void userflow_Task(void *pvParameters){
     MACHINE_STATES_t state = SEL_PRODUCT;
     COFFEE_t selected_product;
-
-    char key;
-    char msg;
 
     while(1){
         switch (state){
