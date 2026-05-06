@@ -31,6 +31,11 @@ const char *options[] = {
     "3: FILTER  kr/cl"
 };
 
+const char *payments[] = {
+    "1: CARD",
+    "2: CASH"
+};
+
 const uint8_t prices[] = {15, 27, 3};
 
 void write_price(uint8_t price, char start_index){
