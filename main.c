@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
+
 //####### FreeRTOS includes #######
 #include "systick_frt.h"
 #include "FreeRTOS.h"
@@ -133,6 +134,8 @@ int main(void)
 
     xTaskCreate(uart_tx_Task, "Uart TX Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
     xTaskCreate(dummy_Task4, "Dummy Task 4", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
+
+    xTaskCreate(uart_rx_Task, "Uart RX Task", USERTASK_STACK_SIZE, NULL, PRIO_INCONSEQUENTIAL, NULL);
 
     vTaskStartScheduler();
 
