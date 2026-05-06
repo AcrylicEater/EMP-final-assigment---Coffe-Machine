@@ -28,6 +28,43 @@ const char *options[] = {
 };
 
 
+void select_product(MACHINE_STATES_t* state_p, COFFEE_t* select_product_p){
+    char key;
+    char msg = CLEAR_LCD;
+    xQueueSend(lcd_queue, &msg, 1000);
+    lcd_queueString("SELECT PRODUCT:");
+    msg = 16; //command to go to start of second line
+    int current_option = 0;
+
+    while(*state_p==SEL_PRODUCT){
+        xQueueSend(lcd_queue, &msg, 1000); // go to start of second line
+        lcd_queueString(options[current_option]);
+
+        //wait for key or one second timeout
+        if(xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(1000)) == pdPASS){
+            switch(key){
+                case '1':
+                    *selected_product_p = ESPRESSO;
+                    *state_p = SEL_PAYMENT;
+                    break;
+                case '2':
+                    *selected_product_p = LATTE;
+                    *state_p = SEL_PAYMENT;
+                    break;
+                case '3':
+                    *selected_product_p = FILTER;
+                    *state_p = SEL_PAYMENT;
+                    break;
+                default:
+                    break;
+            }
+        }else{
+            current_option = (current_option + 1) % 3;
+        }
+    }
+}
+
+
 void userflow_Task(void *pvParameters){
     MACHINE_STATES_t state = SEL_PRODUCT;
     COFFEE_t selected_product;
@@ -38,39 +75,10 @@ void userflow_Task(void *pvParameters){
     while(1){
         switch (state){
         case SEL_PRODUCT:
-            msg = CLEAR_LCD;
-            xQueueSend(lcd_queue, &msg, 1000);
-            lcd_queueString("SELECT PRODUCT:");
-            msg = 16; //command to go to start of second line
-            int current_option = 0;
+            select_product(&state, &selected_product);
+            break;
+        case SEL_PAYMENT:
 
-            while(state==SEL_PRODUCT){
-                xQueueSend(lcd_queue, &msg, 1000); // go to start of second line
-                lcd_queueString(options[current_option]);
-
-                //wait for key or one second timeout
-                if(xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(1000)) == pdPASS){
-                    switch(key){
-                        case '1':
-                            selected_product = ESPRESSO;
-                            state = SEL_PAYMENT;
-                            break;
-                        case '2':
-                            selected_product = LATTE;
-                            state = SEL_PAYMENT;
-                            break;
-                        case '3':
-                            selected_product = FILTER;
-                            state = SEL_PAYMENT;
-                            break;
-                        default:
-                            break;
-                    }
-                }else{
-                    current_option = (current_option + 1) % 3;
-                }
-
-            }
         }
 
     }
