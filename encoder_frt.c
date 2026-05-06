@@ -1,9 +1,5 @@
 #include "encoder_frt.h"
 
-//SemaphoreHandle_t encEdgeSem;
-//SemaphoreHandle_t encPushSem;
-
-
 
 
 void enc_init(){
