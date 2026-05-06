@@ -1,12 +1,11 @@
 
 #include "uart_frt.h"
-
+#include <string.h>
 
 
 
 /*****************************   Variables   *******************************/
-bool_t string_rx_flag = FALSE;
-//static char rx_buffer[RX_BUFFER_SIZE];
+static char rx_buffer[RX_BUFFER_LEN];
 uint8_t rx_tail = 0;
 
 /*****************************   Functions   *******************************/
@@ -33,15 +32,6 @@ void uart0_fifos_disable()
 }
 
 
-bool_t uart0_rx_rdy()
-{
-  return( UART0_FR_R & UART_FR_RXFF );
-}
-
-uint8_t uart0_getc()
-{
-  return ( UART0_DR_R );
-}
 
 bool_t uart0_tx_rdy()
 {
@@ -81,6 +71,15 @@ void uart0_init( uint32_t baud_rate, NOF_DATABITS_t databits, NOF_STOPBITS_t sto
 
   uart0_fifos_disable();
 
+  //RX interrupt setup
+
+  UART0_ICR_R |= UART_IM_RXIM; //Clear interrupt
+  UART0_IM_R  |= UART_IM_RXIM; //Allow uart RX interrupt to be sent to controller
+
+  NVIC_EN0_R |=  UART_NVIC_INT;        //enable uart interrupt in vector table
+  NVIC_PRI1_R &= ~(UART_INT_PRIO_MASK);// clear current interrupt priority
+  NVIC_PRI1_R |= (UART_INT_PRIO << 13);
+
   UART0_CTL_R  |= (UART_CTL_UARTEN | UART_CTL_TXE );  // Enable UART
 }
 
@@ -97,32 +96,53 @@ void uart_tx_Task(void *pvParameters){
     }
 }
 
-/*
-extern BOOLEAN uart0_update(void)
-/*****************************************************************************
-*   Function : See module specification (.h-file).
-****************************************************************************
-{
-  if(uart0_rx_rdy() && rx_tail<RX_BUFFER_SIZE){
-    rx_buffer[rx_tail]=uart0_getc();
-    if(rx_buffer[rx_tail]=='\n') {string_rx_flag=TRUE;}
-    rx_tail++;
-  }
-  return string_rx_flag;
-}
-*/
+void uart_rx_Task(void *pvParameters){
 
-/*
-char* readString(void)
-/*****************************************************************************
-*   Function : See module specification (.h-file).
-****************************************************************************
-{
-  rx_tail = 0;
-  string_rx_flag = FALSE;
-  return &rx_buffer[0];
+    char cmd[RX_BUFFER_LEN];
+    uint8_t msg_len;
+
+    while(1){
+        if(xSemaphoreTake(uart_rx_sem, portMAX_DELAY) == pdPASS){
+            UART0_IM_R &= ~(UART_IM_RXIM); //Disable uart RX interrupt, while copying the msg, to avoid overwriting it
+            msg_len = rx_tail;
+            int i = 0;
+            while(rx_buffer[i]!='\0'){
+                cmd[i] = rx_buffer[i];
+                i++;
+            }
+            cmd[i] = '\0';
+            rx_tail = 0;
+            UART0_IM_R |= UART_IM_RXIM; //Re-enable uart RX interrupt
+
+            if(strncmp(cmd,"GIV MIG GULD",msg_len) == 0){
+                uart0_queueString("Carl er sej\n");
+            }
+        }
+    }
 }
-*/
+
+
+void UART0_int_Handler(void)
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    UART0_ICR_R |= UART_IM_RXIM; //Clear interrupt¨
+
+    if(UART0_FR_R & UART_FR_RXFF){
+      rx_buffer[rx_tail] = UART0_DR_R;
+      if(rx_buffer[rx_tail]=='\n') {
+        rx_buffer[rx_tail] = '\0';
+        xSemaphoreGiveFromISR(uart_rx_sem, &xHigherPriorityTaskWoken);;
+      }
+      rx_tail++;
+
+      if(rx_tail == RX_BUFFER_LEN) rx_tail = 0; //Really bad handling, we need to figure something else out
+
+    }
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+
 
 
 

@@ -26,13 +26,20 @@
 #include "../frt10/inc/FreeRTOS.h"
 #include "../frt10/inc/task.h"
 #include "../frt10/inc/queue.h"
+#include "../frt10/inc/semphr.h"
 /*****************************    Defines    *******************************/
 #define UART_TX_PIN 0b00000010
 #define UART_RX_PIN 0b00000001
 
-#define TX_QUEUE_LEN     32
+#define TX_QUEUE_LEN       32
+#define RX_BUFFER_LEN      32
 
-QueueHandle_t uart_tx_queue;
+#define UART_NVIC_INT      0x20
+#define UART_INT_PRIO_MASK 0xE000
+#define UART_INT_PRIO      4
+
+QueueHandle_t   uart_tx_queue;
+SemaphoreHandle_t uart_rx_sem;
 
 typedef enum { FALSE, TRUE } bool_t;
 
@@ -57,25 +64,10 @@ typedef enum{
 } PARITY_t;
 
 
-
-
 /*****************************   Constants   *******************************/
 
 /*****************************   Functions   *******************************/
 
-bool_t uart0_rx_rdy();
-/*****************************************************************************
-*   Input    : -
-*   Output   : True or false, depending on ready
-*   Function : Character ready at uart0 RX
-******************************************************************************/
-
-uint8_t uart0_getc();
-/*****************************************************************************
-*   Input    : -
-*   Output   : -
-*   Function : Get character from uart0 RX
-******************************************************************************/
 
 bool_t uart0_tx_rdy();
 /*****************************************************************************
@@ -84,12 +76,6 @@ bool_t uart0_tx_rdy();
 *   Function : uart0 TX buffer ready
 ******************************************************************************/
 
-void uart0_putc(char ch);
-/*****************************************************************************
-*   Input    : -
-*   Output   : -
-*   Function : Put character to uart0 TX
-******************************************************************************/
 
 void uart0_init( uint32_t baud_rate, NOF_DATABITS_t databits, NOF_STOPBITS_t stopbits, PARITY_t parity );
 /*****************************************************************************
@@ -112,11 +98,25 @@ void uart_tx_Task(void *pvParameters);
 * Function: writes to uart from queue
 ***********************************************/
 
-//bool_t uart0_update(void);
+void uart_rx_Task(void *pvParameters);
+/**********************************************
+* Input: none
+* Output: none
+* Function: handles commands recieved from uart
+***********************************************/
 
-char* readString(void);
+void UART0_int_handler(void);
+/**********************************************
+* Input: none
+* Output: none
+* Function: recieves single characters from uart RX and activates task on completion of message
+***********************************************/
 
-//void writeString(char*);
+
+
+
+
+
 
 /****************************** End Of Module *******************************/
 #endif

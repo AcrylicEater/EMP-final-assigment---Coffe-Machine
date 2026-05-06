@@ -25,13 +25,14 @@
 #define USERTASK_STACK_SIZE configMINIMAL_STACK_SIZE
 
 //####### global handlers #######
-extern QueueHandle_t lcd_queue;
-extern QueueHandle_t keypad_queue;
+extern QueueHandle_t     lcd_queue;
+extern QueueHandle_t  keypad_queue;
 extern QueueHandle_t encoder_queue;
 extern QueueHandle_t uart_tx_queue;
 
-extern SemaphoreHandle_t keypad_sem;
-extern SemaphoreHandle_t encoder_sem;
+extern SemaphoreHandle_t   keypad_sem;
+extern SemaphoreHandle_t  encoder_sem;
+extern SemaphoreHandle_t  uart_rx_sem;
 
 
 
@@ -116,6 +117,7 @@ int main(void)
 
     keypad_sem = xSemaphoreCreateBinary();
     encoder_sem = xSemaphoreCreateBinary();
+    uart_rx_sem = xSemaphoreCreateBinary();
 
     uart0_init(19200, DBITS_8, SBIT_1, NO_PARITY); //must be here for some reason or the mcu crashes
 

@@ -58,8 +58,9 @@ extern uint32_t __STACK_TOP;
 //
 //*****************************************************************************
 
-extern GPIOE_int_Handler(void);
-extern GPIOA_int_handler(void);
+extern void GPIOE_int_Handler(void);
+extern void GPIOA_int_handler(void);
+extern void UART0_int_Handler(void);
 
 //*****************************************************************************
 //
@@ -93,7 +94,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // GPIO Port C
     IntDefaultHandler,                      // GPIO Port D
     GPIOE_int_Handler,                      // GPIO Port E
-    IntDefaultHandler,                      // UART0 Rx and Tx
+    UART0_int_Handler,                      // UART0 Rx and Tx
     IntDefaultHandler,                      // UART1 Rx and Tx
     IntDefaultHandler,                      // SSI0 Rx and Tx
     IntDefaultHandler,                      // I2C0 Master and Slave
