@@ -27,8 +27,10 @@ void enc_init(){
 void encoder_Task(void *pvParameters){
     enc_init();
 
+    vTaskSuspend(NULL); //Suspend this after start up, wait for wake-up from userflow
+
     while(1){
-        if(xSemaphoreTake(encoder_sem,portMAX_DELAY)) {       //wait for encoder interrupt
+        if(xSemaphoreTake(encoder_sem,portMAX_DELAY)) {    //wait for encoder interrupt
 
             uint8_t pinA = GPIO_PORTA_DATA_R & DIGI_A_PIN; //get the state of the A pin of the encoder
             uint8_t pinB = GPIO_PORTA_DATA_R & DIGI_B_PIN; //get the state of the B pin

@@ -13,6 +13,7 @@ ASM_SRCS += \
 
 C_SRCS += \
 ../LCD_frt.c \
+../coffee_control.c \
 ../encoder_frt.c \
 ../heap_2.c \
 ../keypad_frt.c \
@@ -27,6 +28,7 @@ C_SRCS += \
 
 C_DEPS += \
 ./LCD_frt.d \
+./coffee_control.d \
 ./encoder_frt.d \
 ./heap_2.d \
 ./keypad_frt.d \
@@ -41,6 +43,7 @@ C_DEPS += \
 
 OBJS += \
 ./LCD_frt.obj \
+./coffee_control.obj \
 ./encoder_frt.obj \
 ./heap_2.obj \
 ./keypad_frt.obj \
@@ -59,6 +62,7 @@ ASM_DEPS += \
 
 OBJS__QUOTED += \
 "LCD_frt.obj" \
+"coffee_control.obj" \
 "encoder_frt.obj" \
 "heap_2.obj" \
 "keypad_frt.obj" \
@@ -74,6 +78,7 @@ OBJS__QUOTED += \
 
 C_DEPS__QUOTED += \
 "LCD_frt.d" \
+"coffee_control.d" \
 "encoder_frt.d" \
 "heap_2.d" \
 "keypad_frt.d" \
@@ -91,6 +96,7 @@ ASM_DEPS__QUOTED += \
 
 C_SRCS__QUOTED += \
 "../LCD_frt.c" \
+"../coffee_control.c" \
 "../encoder_frt.c" \
 "../heap_2.c" \
 "../keypad_frt.c" \

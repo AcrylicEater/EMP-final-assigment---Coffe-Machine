@@ -33,6 +33,23 @@ typedef struct {
 #define TIME_BASE  60
 #define SEC_IN_DAY TIME_BASE*TIME_BASE*24
 
+typedef enum {
+    SEL_PRODUCT,
+    SEL_PAYMENT,
+    ENTER_CASH,
+    ENTER_CARD,
+    RETURN_CHANGE,
+    BREW_ESPRESSO,
+    BREW_LATTE,
+    BREW_FILTER,
+    REMOVE_CUP
+} MACHINE_STATES_t;
+
+typedef enum {
+    ESPRESSO,
+    LATTE,
+    FILTER
+} COFFEE_t;
 
 /***************** Functions ******************/
 
@@ -50,5 +67,11 @@ timestamp_t get_timestamp();
 *   Function : formats the systick count
 ******************************************************************************/
 
+void userflow_Task(void *pvParameters);
+/*****************************************************************************
+*   Input    : -
+*   Output   : -
+*   Function : formats the systick count
+******************************************************************************/
 
 #endif

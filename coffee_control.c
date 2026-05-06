@@ -1,4 +1,6 @@
 #include "coffee_control.h"
+#include "LCD_frt.h"
+#include "keypad_frt.h"
 
 uint32_t get_runtime(){
     return xTaskGetTickCount() / configTICK_RATE_HZ;
@@ -17,4 +19,61 @@ timestamp_t get_timestamp(){
     return_val.hr  = all_seconds / (TIME_BASE*TIME_BASE);
 
     return return_val;
+}
+
+const char *options[] = {
+    "1: ESPRESSO",
+    "2: LATTE   ",
+    "3: FILTER  "
+};
+
+
+void userflow_Task(void *pvParameters){
+    MACHINE_STATES_t state = SEL_PRODUCT;
+    COFFEE_t selected_product;
+
+    char key;
+    char msg;
+
+    while(1){
+        switch (state){
+        case SEL_PRODUCT:
+            msg = CLEAR_LCD;
+            xQueueSend(lcd_queue, &msg, 1000);
+            lcd_queueString("SELECT PRODUCT:");
+            msg = 16; //command to go to start of second line
+            int current_option = 0;
+
+            while(state==SEL_PRODUCT){
+                xQueueSend(lcd_queue, &msg, 1000); // go to start of second line
+                lcd_queueString(options[current_option]);
+
+                //wait for key or one second timeout
+                if(xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(1000)) == pdPASS){
+                    switch(key){
+                        case '1':
+                            selected_product = ESPRESSO;
+                            state = SEL_PAYMENT;
+                            break;
+                        case '2':
+                            selected_product = LATTE;
+                            state = SEL_PAYMENT;
+                            break;
+                        case '3':
+                            selected_product = FILTER;
+                            state = SEL_PAYMENT;
+                            break;
+                        default:
+                            break;
+                    }
+                }else{
+                    current_option = (current_option + 1) % 3;
+                }
+
+            }
+        }
+
+    }
+
+
 }
