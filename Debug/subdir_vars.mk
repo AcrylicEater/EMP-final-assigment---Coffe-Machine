@@ -17,6 +17,7 @@ C_SRCS += \
 ../encoder_frt.c \
 ../heap_2.c \
 ../keypad_frt.c \
+../led.c \
 ../list.c \
 ../main.c \
 ../port.c \
@@ -32,6 +33,7 @@ C_DEPS += \
 ./encoder_frt.d \
 ./heap_2.d \
 ./keypad_frt.d \
+./led.d \
 ./list.d \
 ./main.d \
 ./port.d \
@@ -47,6 +49,7 @@ OBJS += \
 ./encoder_frt.obj \
 ./heap_2.obj \
 ./keypad_frt.obj \
+./led.obj \
 ./list.obj \
 ./main.obj \
 ./port.obj \
@@ -66,6 +69,7 @@ OBJS__QUOTED += \
 "encoder_frt.obj" \
 "heap_2.obj" \
 "keypad_frt.obj" \
+"led.obj" \
 "list.obj" \
 "main.obj" \
 "port.obj" \
@@ -82,6 +86,7 @@ C_DEPS__QUOTED += \
 "encoder_frt.d" \
 "heap_2.d" \
 "keypad_frt.d" \
+"led.d" \
 "list.d" \
 "main.d" \
 "port.d" \
@@ -100,6 +105,7 @@ C_SRCS__QUOTED += \
 "../encoder_frt.c" \
 "../heap_2.c" \
 "../keypad_frt.c" \
+"../led.c" \
 "../list.c" \
 "../main.c" \
 "../port.c" \

@@ -30,6 +30,7 @@ main.obj: ../keypad_frt.h
 main.obj: ../encoder_frt.h
 main.obj: ../uart_frt.h
 main.obj: ../coffee_control.h
+main.obj: ../Led.h
 
 ../main.c:
 
@@ -90,4 +91,6 @@ X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/semphr.h:
 ../uart_frt.h:
 
 ../coffee_control.h:
+
+../Led.h:
 

@@ -14,6 +14,7 @@
 #include "encoder_frt.h"
 #include "uart_frt.h"
 #include "coffee_control.h"
+#include "Led.h"
 
 
 //####### global defines
@@ -125,7 +126,7 @@ int main(void)
     uart_rx_sem = xSemaphoreCreateBinary();
 
     uart0_init(19200, DBITS_8, SBIT_1, NO_PARITY); //must be here for some reason or the mcu crashes
-
+    Led_init();
 
     //xTaskCreate(dummy_Task, "Dummy Task", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
     xTaskCreate(lcd_Task, "LCD Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL );
@@ -138,10 +139,12 @@ int main(void)
     //xTaskCreate(encoder_Task, "Encoder Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, NULL);
     //xTaskCreate(dummy_Task3, "Dummy Task 3", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
 
-    //xTaskCreate(uart_tx_Task, "Uart TX Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
+    xTaskCreate(uart_tx_Task, "Uart TX Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
     //xTaskCreate(dummy_Task4, "Dummy Task 4", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
 
-    //xTaskCreate(uart_rx_Task, "Uart RX Task", USERTASK_STACK_SIZE, NULL, PRIO_INCONSEQUENTIAL, NULL);
+    xTaskCreate(uart_rx_Task, "Uart RX Task", USERTASK_STACK_SIZE, NULL, PRIO_INCONSEQUENTIAL, NULL);
+    xTaskCreate(Green_LED_Task, "Green LED Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
+    
 
     vTaskStartScheduler();
 
