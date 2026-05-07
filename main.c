@@ -115,6 +115,9 @@ int main(void)
     keypad_queue = xQueueCreate(QUEUE_LEN,sizeof(char));
     encoder_queue = xQueueCreate(QUEUE_LEN,sizeof(int8_t));
     uart_tx_queue = xQueueCreate(TX_QUEUE_LEN,sizeof(char));
+    green_led_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
+    yellow_led_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
+    red_led_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
 
     keypad_sem = xSemaphoreCreateBinary();
     encoder_sem = xSemaphoreCreateBinary();

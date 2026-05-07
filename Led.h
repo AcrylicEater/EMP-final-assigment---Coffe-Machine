@@ -24,11 +24,16 @@
 #include "../frt10/inc/queue.h"
 
 /***************** Defines ********************/
-#define GREEN_LED_PIN   0b00100000
-#define YELLOW_LED_PIN  0b01000000
-#define RED_LED_PIN     0b10000000
+#define GREEN_LED_PIN   0b00001000
+#define YELLOW_LED_PIN  0b00000100
+#define RED_LED_PIN     0b00000010
 #define LED_MASK        0b00001110
+#define ON_STATE         1
+#define OFF_STATE        0
 
+QueueHandle_t green_led_queue;
+QueueHandle_t yellow_led_queue;
+QueueHandle_t red_led_queue;
 
 /***************** Functions ******************/
 
