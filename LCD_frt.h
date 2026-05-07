@@ -31,6 +31,9 @@
 #define QUEUE_LEN     32
 #define CLEAR_LCD     0x7F
 
+#define SET_DDRAM_CMD 0x80
+#define LCD_OFFSET    0x40
+
 QueueHandle_t lcd_queue;
 
 /***************** Functions ******************/

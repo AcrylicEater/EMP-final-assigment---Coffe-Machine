@@ -1,6 +1,7 @@
 #include "coffee_control.h"
 #include "LCD_frt.h"
 #include "keypad_frt.h"
+#include "uart_frt.h"
 
 uint32_t get_runtime()
 {
@@ -26,9 +27,9 @@ timestamp_t get_timestamp()
 
 
 const char *options[] = {
-    "1: ESPRESSO   kr",
-    "2: LATTE      kr",
-    "3: FILTER  kr/cl"
+    "1:ESPRESSO    kr",
+    "2:LATTE       kr",
+    "3:FILTER   kr/cl"
 };
 
 const char *payments[] = {
@@ -62,24 +63,27 @@ void select_product(MACHINE_STATES_t* state_p, COFFEE_t* selected_product_p){
     while(*state_p==SEL_PRODUCT){
         xQueueSend(lcd_queue, &msg, 1000); // go to start of second line
         lcd_queueString(options[current_option]);
-        //write_price(prices[current_option], (current_option == 2) ? 26 : 29);
+        write_price(prices[current_option], (current_option == 2) ? 25 : 28);
 
     // wait for key or one second timeout
-    if (xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(1000)) == pdPASS)
+    if (xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(2500)) == pdPASS)
     {
       switch (key)
       {
       case '1':
         *selected_product_p = ESPRESSO;
         *state_p = SEL_PAYMENT;
+        uart0_queueString("ESPRESSO\n");
         break;
       case '2':
         *selected_product_p = LATTE;
         *state_p = SEL_PAYMENT;
+        uart0_queueString("LATTE\n");
         break;
       case '3':
         *selected_product_p = FILTER;
         *state_p = SEL_PAYMENT;
+        uart0_queueString("FILTER\n");
         break;
       default:
         break;
