@@ -26,9 +26,10 @@ void Yellow_LED_Task(void *pvParameters){
     while(1){
         if(xQueueReceive(yellow_led_queue, &state, portMAX_DELAY) == pdPASS){
             if(state == ON_STATE){
-                GPIO_PORTF_DATA_R |= YELLOW_LED_PIN; //Turn on yellow LED
+                
+                GPIO_PORTF_DATA_R &= ~YELLOW_LED_PIN; //Turn on yellow LED
             } else {
-                GPIO_PORTF_DATA_R &= ~YELLOW_LED_PIN; //Turn off yellow LED
+                GPIO_PORTF_DATA_R |= YELLOW_LED_PIN; //Turn off yellow LED
             }
         }
     }
@@ -39,9 +40,9 @@ void Red_LED_Task(void *pvParameters){
     while(1){
         if(xQueueReceive(red_led_queue, &state, portMAX_DELAY) == pdPASS){
             if(state == ON_STATE){
-                GPIO_PORTF_DATA_R |= RED_LED_PIN; //Turn on red LED
+                GPIO_PORTF_DATA_R &= ~RED_LED_PIN; //Turn on red LED
             } else {
-                GPIO_PORTF_DATA_R &= ~RED_LED_PIN; //Turn off red LED
+                GPIO_PORTF_DATA_R |= RED_LED_PIN; //Turn off red LED
             }
         }
     }
