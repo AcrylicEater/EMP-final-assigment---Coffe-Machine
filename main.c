@@ -170,27 +170,3 @@ int main(void)
 
 
 
-void wait_for_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product){
-    char msg = CLEAR_LCD;
-    uint8_t SW_1_state;
-    xQueueSend(lcd_queue, &msg, 1000);
-    lcd_queueString("PLACE CUP");
-
-    while(*state_p == WAIT_CUP){
-        if(xQueueReceive(SW_1_queue, &SW_1_state, portMAX_DELAY) == pdPASS){
-            if(SW_1_state == STATE_PRESSED){
-                switch(*selected_product){
-                    case ESPRESSO:
-                        *state_p = BREW_ESPRESSO;
-                        break;
-                    case LATTE:
-                        *state_p = BREW_LATTE;
-                        break;
-                    case FILTER:
-                        *state_p = BREW_FILTER;
-                        break;
-                }
-            }
-        }
-    }
-}

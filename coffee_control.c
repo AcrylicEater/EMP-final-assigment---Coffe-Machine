@@ -140,35 +140,72 @@ void enter_card(MACHINE_STATES_t *state_p)
 {
   // Clear display
   char msg = CLEAR_LCD;
+  char key;
+  xQueueSend(lcd_queue, &msg, 1000);
+  lcd_queueString("ENTER NUM & PIN");
+  vTaskDelay(pdMS_TO_TICKS(1500));
+  xQueueSend(lcd_queue, &msg, 1000);
+  msg = 16;
+  xQueueSend(lcd_queue, &msg, 1000);
+  lcd_queueString("PIN: ");
+  msg = 0;
   xQueueSend(lcd_queue, &msg, 1000);
 
-  int value_being_entered = 0; // 0 = Card number, 1 = Pin Number
   char card_number[16];
   char pin_code[4];
-  int card_index = 0;
-  int pin_index = 0;
+  int input_index = 0;
 
-  // Show card numbers as they are typed
-  while (*state_p == ENTER_CARD)
-  {
-    // check key every second
-    if (xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(1000)) == pdPASS)
-    {
-      switch (value_being_entered)
-      {
-      case 0:
-        if (card_index > 16)
-          value_being_entered = 1; // Time to get the PIN
-        break;
-      case 1:
-        if (card_index > 16)
-          *state_p = ENTER_CASH; // Pin entered, wait for cup
-        break;
-      default:
-        break;
-      }
+  uint8_t offset = 0;
+
+    // Show card numbers as they are typed
+    // check key
+    while(*state_p == ENTER_CARD){
+        if (xQueueReceive(keypad_queue, &key, portMAX_DELAY) == pdPASS)
+        {
+            if((key == '*') || (key == '#')){ // delete character
+              if(input_index){
+                input_index--;
+
+                if(input_index > 15){ //if we are entering pin code, we must account for offset from the PIN: string
+                    offset = 5;
+                } else{
+                    offset = 0;
+                }
+
+                msg = input_index + offset;
+                xQueueSend(lcd_queue, &msg, 1000); //update cursor to 1 before current position
+                msg = ' ';
+                xQueueSend(lcd_queue, &msg, 1000); //clear current character
+                msg = input_index + offset;
+                xQueueSend(lcd_queue, &msg, 1000); //update cursor to 1 before current position
+              }
+             } else { //normal character
+
+              if(input_index < 16){
+                card_number[input_index] = key;
+              } else{
+                  pin_code[input_index - 16] = key;
+              }
+
+              xQueueSend(lcd_queue, &key, 1000);
+              input_index++;
+              if(input_index == 16){
+                  msg = 21;
+                  xQueueSend(lcd_queue, &msg, 1000);
+              } else if(input_index == 20){
+                  if((card_number[15] % 2) == (pin_code[3] % 2)){
+                      *state_p = WAIT_CUP;
+                  } else{
+                      msg = CLEAR_LCD;
+                      xQueueSend(lcd_queue, &msg, 1000);
+                      lcd_queueString("INVALID CARD");
+                  }
+              }
+
+             }
+
+        }
     }
-  }
 }
 
 void enter_cash(MACHINE_STATES_t *state_p)
@@ -177,6 +214,7 @@ void enter_cash(MACHINE_STATES_t *state_p)
 
   // Clear display
   char msg = CLEAR_LCD;
+  char key;
   xQueueSend(lcd_queue, &msg, 1000);
 
   // Show cash as the encoder is turned
@@ -199,7 +237,32 @@ void enter_cash(MACHINE_STATES_t *state_p)
     }
   }
 }
+/*
+void wait_for_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product){
+    char msg = CLEAR_LCD;
+    uint8_t SW_1_state;
+    xQueueSend(lcd_queue, &msg, 1000);
+    lcd_queueString("PLACE CUP");
 
+    while(*state_p == WAIT_CUP){
+        if(xQueueReceive(SW_1_queue, &SW_1_state, portMAX_DELAY) == pdPASS){
+            if(SW_1_state == STATE_PRESSED){
+                switch(*selected_product){
+                    case ESPRESSO:
+                        *state_p = BREW_ESPRESSO;
+                        break;
+                    case LATTE:
+                        *state_p = BREW_LATTE;
+                        break;
+                    case FILTER:
+                        *state_p = BREW_FILTER;
+                        break;
+                }
+            }
+        }
+    }
+}
+*/
 void userflow_Task(void *pvParameters)
 {
   MACHINE_STATES_t state = SEL_PRODUCT;
@@ -220,6 +283,9 @@ void userflow_Task(void *pvParameters)
       break;
     case ENTER_CASH:
       enter_cash(&state);
+      break;
+    case WAIT_CUP:
+      //wait_for_cup(&state, &selected_produdct);
       break;
     }
   }
