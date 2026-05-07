@@ -1,7 +1,7 @@
 
 #include "uart_frt.h"
+#include "Led.h"
 #include <string.h>
-
 
 
 /*****************************   Variables   *******************************/
@@ -106,6 +106,7 @@ void uart_rx_Task(void *pvParameters){
             UART0_IM_R &= ~(UART_IM_RXIM); //Disable uart RX interrupt, while copying the msg, to avoid overwriting it
             msg_len = rx_tail;
             int i = 0;
+            uint8_t dir = 1;
             while(rx_buffer[i]!='\0'){
                 cmd[i] = rx_buffer[i];
                 i++;
@@ -116,6 +117,14 @@ void uart_rx_Task(void *pvParameters){
 
             if(strncmp(cmd,"GIV MIG GULD",msg_len) == 0){
                 uart0_queueString("Carl er sej\n");
+            }
+            if(strncmp(cmd,"SHOW ME MONEY",msg_len) == 0){
+                dir = 1;
+                xQueueSend(green_led_queue, &dir, 1000);;
+            }
+            if(strncmp(cmd,"MONEY AWAY",msg_len) == 0){
+                dir = 0;
+                xQueueSend(green_led_queue, &dir, 1000);;
             }
         }
     }
