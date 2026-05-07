@@ -98,13 +98,17 @@ void uart_tx_Task(void *pvParameters){
 }
 
 uint8_t parse_price(char* key){
-    uint8_t price = 0;
+    uint16_t price = 0;
     while(*key >= '0' && *key <= '9'){
         price *= 10;
         price += (*key - '0');
         key++;
     }
-    return price;
+    if(price>255){
+        uart0_queueString("TOO GREEDY\n");
+        return 1;
+    }
+    return (uint8_t)price;
 }
 
 void uart_rx_Task(void *pvParameters){
@@ -177,11 +181,15 @@ void UART0_int_Handler(void)
       rx_buffer[rx_tail] = UART0_DR_R;
       if(rx_buffer[rx_tail]=='\n') {
         rx_buffer[rx_tail] = '\0';
-        xSemaphoreGiveFromISR(uart_rx_sem, &xHigherPriorityTasskWoken);;
+        xSemaphoreGiveFromISR(uart_rx_sem, &xHigherPriorityTaskWoken);
       }
       rx_tail++;
 
-      if(rx_tail == RX_BUFFER_LEN) rx_tail = 0; //Really bad handling, we need to figure something else out
+      if(rx_tail == RX_BUFFER_LEN){
+          rx_tail--;
+          rx_buffer[rx_tail] = '\0';
+          xSemaphoreGiveFromISR(uart_rx_sem, &xHigherPriorityTaskWoken);
+      }
 
     }
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

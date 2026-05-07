@@ -31,6 +31,7 @@ main.obj: ../encoder_frt.h
 main.obj: ../uart_frt.h
 main.obj: ../coffee_control.h
 main.obj: ../Led.h
+main.obj: ../buttons.h
 
 ../main.c:
 
@@ -93,4 +94,6 @@ X:/DOCUMENTS/Uni/Opgaver/4semester/EMP/frt10/inc/semphr.h:
 ../coffee_control.h:
 
 ../Led.h:
+
+../buttons.h:
 
