@@ -136,11 +136,74 @@ void select_payment(MACHINE_STATES_t *state_p)
   }
 }
 
+void enter_card(MACHINE_STATES_t *state_p)
+{
+  // Clear display
+  char msg = CLEAR_LCD;
+  xQueueSend(lcd_queue, &msg, 1000);
+
+  int value_being_entered = 0; // 0 = Card number, 1 = Pin Number
+  char card_number[16];
+  char pin_code[4];
+  int card_index = 0;
+  int pin_index = 0;
+
+  // Show card numbers as they are typed
+  while (*state_p == ENTER_CARD)
+  {
+    // check key every second
+    if (xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(1000)) == pdPASS)
+    {
+      switch (value_being_entered)
+      {
+      case 0:
+        if (card_index > 16)
+          value_being_entered = 1; // Time to get the PIN
+        break;
+      case 1:
+        if (card_index > 16)
+          *state_p = ENTER_CASH; // Pin entered, wait for cup
+        break;
+      default:
+        break;
+      }
+    }
+  }
+}
+
+void enter_cash(MACHINE_STATES_t *state_p)
+{
+  // Resume encoder thingy
+
+  // Clear display
+  char msg = CLEAR_LCD;
+  xQueueSend(lcd_queue, &msg, 1000);
+
+  // Show cash as the encoder is turned
+  while (*state_p == ENTER_CARD)
+  {
+    // check key every second
+    if (xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(1000)) == pdPASS)
+    {
+      switch (key)
+      {
+      case '1':
+        *state_p = ENTER_CARD;
+        break;
+      case '2':
+        *state_p = ENTER_CASH;
+        break;
+      default:
+        break;
+      }
+    }
+  }
+}
+
 void userflow_Task(void *pvParameters)
 {
   MACHINE_STATES_t state = SEL_PRODUCT;
   COFFEE_t selected_product;
-
 
   while (1)
   {
@@ -151,6 +214,12 @@ void userflow_Task(void *pvParameters)
       break;
     case SEL_PAYMENT:
       select_payment(&state);
+      break;
+    case ENTER_CARD:
+      enter_card(&state);
+      break;
+    case ENTER_CASH:
+      enter_cash(&state);
       break;
     }
   }

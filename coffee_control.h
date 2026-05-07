@@ -38,6 +38,7 @@ typedef enum {
     SEL_PAYMENT,
     ENTER_CASH,
     ENTER_CARD,
+    WAIT_FOR_CUP,
     RETURN_CHANGE,
     BREW_ESPRESSO,
     BREW_LATTE,
