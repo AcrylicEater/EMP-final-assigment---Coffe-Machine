@@ -143,7 +143,7 @@ void enter_card(MACHINE_STATES_t *state_p)
   char key;
   xQueueSend(lcd_queue, &msg, 1000);
   lcd_queueString("ENTER NUM & PIN");
-  vTaskDelay(pdMS_TO_TICKS(1500));
+  vTaskDelay(pdMS_TO_TICKS(1000));
   xQueueSend(lcd_queue, &msg, 1000);
   msg = 16;
   xQueueSend(lcd_queue, &msg, 1000);
@@ -192,13 +192,15 @@ void enter_card(MACHINE_STATES_t *state_p)
               if(input_index == 16){
                   msg = 21;
                   xQueueSend(lcd_queue, &msg, 1000);
-              } else if(input_index == 20){
+              } else if(input_index == 21){
                   if((card_number[15] % 2) == (pin_code[3] % 2)){
                       *state_p = WAIT_CUP;
                   } else{
                       msg = CLEAR_LCD;
                       xQueueSend(lcd_queue, &msg, 1000);
                       lcd_queueString("INVALID CARD");
+                      vTaskDelay(pdMS_TO_TICKS(1000));
+                      *state_p = SEL_PAYMENT;
                   }
               }
 
