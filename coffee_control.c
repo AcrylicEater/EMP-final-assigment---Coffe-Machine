@@ -2,6 +2,7 @@
 #include "LCD_frt.h"
 #include "keypad_frt.h"
 #include "uart_frt.h"
+#include "buttons.h"
 
 uint32_t get_runtime()
 {
@@ -192,7 +193,7 @@ void enter_card(MACHINE_STATES_t *state_p)
               if(input_index == 16){
                   msg = 21;
                   xQueueSend(lcd_queue, &msg, 1000);
-              } else if(input_index == 21){
+              } else if(input_index == 20){
                   if((card_number[15] % 2) == (pin_code[3] % 2)){
                       *state_p = WAIT_CUP;
                   } else{
@@ -239,7 +240,7 @@ void enter_cash(MACHINE_STATES_t *state_p)
     }
   }
 }
-/*
+
 void wait_for_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product){
     char msg = CLEAR_LCD;
     uint8_t SW_1_state;
@@ -264,7 +265,7 @@ void wait_for_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product){
         }
     }
 }
-*/
+
 void userflow_Task(void *pvParameters)
 {
   MACHINE_STATES_t state = SEL_PRODUCT;
@@ -287,7 +288,7 @@ void userflow_Task(void *pvParameters)
       enter_cash(&state);
       break;
     case WAIT_CUP:
-      //wait_for_cup(&state, &selected_produdct);
+      wait_for_cup(&state, &selected_product);
       break;
     }
   }
