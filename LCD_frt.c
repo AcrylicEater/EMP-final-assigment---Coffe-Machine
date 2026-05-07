@@ -70,61 +70,43 @@ void lcd_init(){
     //lcd_command(0x06);
 }
 
-void lcd_setcursor(uint8_t pos){
-    if(pos>=32){return;}
-    uint8_t shift_cmd;
-    int8_t dir;
-    if(pos>cursor_pos){
-        dir = 1;
-        shift_cmd = 0b00010100;
-    } else if (pos<cursor_pos){
-        dir = -1;
-        shift_cmd = 0b00010000;
-    } else{
-        return;
+void lcd_setcursor(uint8_t pos)
+{
+    uint8_t addr = pos;
+
+    if(pos>31){return;} //invalid address
+
+    if(pos > 15){
+        addr = LCD_OFFSET + (pos - 16);
     }
-    while(cursor_pos!=pos){
-        if(cursor_pos==16){
-            uint8_t i;
-            for(i=0; i<24; i++ ){
-                lcd_command(shift_cmd);
-            }
-        }
-        lcd_command(shift_cmd);
-        cursor_pos += dir;
-    }
-    return;
+
+    lcd_command(SET_DDRAM_CMD | addr); // Set DDRAM address
+    cursor_pos = pos;
 }
 
 void lcd_char(uint8_t character){
-    switch(cursor_pos){
-        case 16:
-        {
-            uint8_t i;
-            for(i=0; i<24; i++ ){
-                lcd_command(0b00010100);
-            }
-        }
-            break;
-        case 32:
-        {
-            lcd_setcursor(0);
-        }
-            break;
-    }
-    GPIO_PORTC_DATA_R = (GPIO_PORTC_DATA_R & ~(LCD_DATA)) | (character & LCD_DATA); //Put the four highest bits of CMD on portC
-    GPIO_PORTD_DATA_R |= LCD_RS; //Select data register
-    GPIO_PORTD_DATA_R |= LCD_EN; //Pull enable pin high to latch data
+    GPIO_PORTC_DATA_R = (GPIO_PORTC_DATA_R & ~(LCD_DATA)) | (character & LCD_DATA);
+    GPIO_PORTD_DATA_R |= LCD_RS;
+    GPIO_PORTD_DATA_R |= LCD_EN;
     delay_us(TIMEOUT);
-    GPIO_PORTD_DATA_R &= ~(LCD_EN); //Pull enable pin low
+    GPIO_PORTD_DATA_R &= ~(LCD_EN);
 
-    GPIO_PORTC_DATA_R = (GPIO_PORTC_DATA_R & ~(LCD_DATA)) | (character<<4); //write the lowest four bits of CMD on portD
-    GPIO_PORTD_DATA_R |= LCD_EN; //Pull enable pin high to latch data
+    GPIO_PORTC_DATA_R = (GPIO_PORTC_DATA_R & ~(LCD_DATA)) | (character<<4);
+    GPIO_PORTD_DATA_R |= LCD_EN;
     delay_us(TIMEOUT);
-    GPIO_PORTD_DATA_R &= ~(LCD_EN); //Pull enable pin low
-    delay_us(TIMEOUT); // give it time to write to the register
+    GPIO_PORTD_DATA_R &= ~(LCD_EN);
+    delay_us(TIMEOUT);
+
     cursor_pos++;
+
+    if(cursor_pos == 16){
+        lcd_setcursor(16);
+    }
+    else if(cursor_pos >= 32){
+        lcd_setcursor(0);
+    }
 }
+
 
 void lcd_string(uint8_t *str){
     while(*str){
