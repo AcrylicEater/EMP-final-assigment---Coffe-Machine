@@ -43,7 +43,8 @@ typedef enum {
     BREW_ESPRESSO,
     BREW_LATTE,
     BREW_FILTER,
-    REMOVE_CUP
+    REMOVE_CUP,
+    WAIT_CUP
 } MACHINE_STATES_t;
 
 typedef enum {

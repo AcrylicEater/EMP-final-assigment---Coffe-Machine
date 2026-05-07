@@ -15,6 +15,7 @@
 #include "uart_frt.h"
 #include "coffee_control.h"
 #include "Led.h"
+#include "buttons.h"
 
 
 //####### global defines
@@ -32,11 +33,17 @@ extern QueueHandle_t     lcd_queue;
 extern QueueHandle_t  keypad_queue;
 extern QueueHandle_t encoder_queue;
 extern QueueHandle_t uart_tx_queue;
+extern QueueHandle_t green_led_queue;
+extern QueueHandle_t yellow_led_queue;
+extern QueueHandle_t red_led_queue;
+extern QueueHandle_t SW_1_queue;
+extern QueueHandle_t SW_2_queue;
 
 extern SemaphoreHandle_t     keypad_sem;
 extern SemaphoreHandle_t    encoder_sem;
 extern SemaphoreHandle_t    uart_rx_sem;
 extern SemaphoreHandle_t price_wr_mutex;
+
 
 
 
@@ -121,6 +128,8 @@ int main(void)
     green_led_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
     yellow_led_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
     red_led_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
+    SW_1_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
+    SW_2_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
 
     keypad_sem = xSemaphoreCreateBinary();
     encoder_sem = xSemaphoreCreateBinary();
@@ -129,6 +138,7 @@ int main(void)
 
     uart0_init(19200, DBITS_8, SBIT_1, NO_PARITY); //must be here for some reason or the mcu crashes
     Led_init();
+    buttons_init();
 
     //xTaskCreate(dummy_Task, "Dummy Task", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
     xTaskCreate(lcd_Task, "LCD Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL );
@@ -145,10 +155,42 @@ int main(void)
     //xTaskCreate(dummy_Task4, "Dummy Task 4", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
 
     xTaskCreate(uart_rx_Task, "Uart RX Task", USERTASK_STACK_SIZE, NULL, PRIO_INCONSEQUENTIAL, NULL);
+
     xTaskCreate(Green_LED_Task, "Green LED Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
-    
+    xTaskCreate(Yellow_LED_Task, "Yellow LED Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
+    xTaskCreate(Red_LED_Task, "Red LED Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
+
+    xTaskCreate(SW_1_Task, "SW 1 Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
+    xTaskCreate(SW_2_Task, "SW 2 Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
 
     vTaskStartScheduler();
 
 	return 0;
+}
+
+
+
+void wait_for_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product){
+    char msg = CLEAR_LCD;
+    uint8_t SW_1_state;
+    xQueueSend(lcd_queue, &msg, 1000);
+    lcd_queueString("PLACE CUP");
+
+    while(*state_p == WAIT_CUP){
+        if(xQueueReceive(SW_1_queue, &SW_1_state, portMAX_DELAY) == pdPASS){
+            if(SW_1_state == STATE_PRESSED){
+                switch(*selected_product){
+                    case ESPRESSO:
+                        *state_p = BREW_ESPRESSO;
+                        break;
+                    case LATTE:
+                        *state_p = BREW_LATTE;
+                        break;
+                    case FILTER:
+                        *state_p = BREW_FILTER;
+                        break;
+                }
+            }
+        }
+    }
 }

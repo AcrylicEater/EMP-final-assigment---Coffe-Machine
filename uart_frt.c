@@ -98,12 +98,17 @@ void uart_tx_Task(void *pvParameters){
 }
 
 uint8_t parse_price(char* key){
-    uint8_t price = 0;
+    uint16_t price = 0;
     while(*key >= '0' && *key <= '9'){
         price *= 10;
-        price += *key + '0';
+        price += (*key - '0');
         key++;
     }
+    if(price>255){
+        uart0_queueString("TOO GREEDY\n");
+        return 1;
+    }
+    return (uint8_t)price;
 }
 
 void uart_rx_Task(void *pvParameters){
@@ -129,13 +134,16 @@ void uart_rx_Task(void *pvParameters){
                 char* key = &cmd[10];
                 switch(*key){
                 case 'E':
-                    set_coffee_price(ESPRESSO, parse_price(key++));
+                    key += 2;
+                    set_coffee_price(ESPRESSO, parse_price(key));
                     break;
                 case 'L':
-                    set_coffee_price(LATTE, parse_price(key++));
+                    key += 2;
+                    set_coffee_price(LATTE, parse_price(key));
                     break;
                 case 'F':
-                    set_coffee_price(FILTER, parse_price(key++));
+                    key += 2;
+                    set_coffee_price(FILTER, parse_price(key));
                     break;
                 default:
                     uart0_queueString("INVALID PRICE CMD");
@@ -167,17 +175,21 @@ void UART0_int_Handler(void)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    UART0_ICR_R |= UART_IM_RXIM; //Clear interrupt¨
+    UART0_ICR_R |= UART_IM_RXIM; //Clear interrupt
 
     if(UART0_FR_R & UART_FR_RXFF){
       rx_buffer[rx_tail] = UART0_DR_R;
       if(rx_buffer[rx_tail]=='\n') {
         rx_buffer[rx_tail] = '\0';
-        xSemaphoreGiveFromISR(uart_rx_sem, &xHigherPriorityTaskWoken);;
+        xSemaphoreGiveFromISR(uart_rx_sem, &xHigherPriorityTaskWoken);
       }
       rx_tail++;
 
-      if(rx_tail == RX_BUFFER_LEN) rx_tail = 0; //Really bad handling, we need to figure something else out
+      if(rx_tail == RX_BUFFER_LEN){
+          rx_tail--;
+          rx_buffer[rx_tail] = '\0';
+          xSemaphoreGiveFromISR(uart_rx_sem, &xHigherPriorityTaskWoken);
+      }
 
     }
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
