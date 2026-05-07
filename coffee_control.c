@@ -62,7 +62,7 @@ void select_product(MACHINE_STATES_t* state_p, COFFEE_t* selected_product_p){
     while(*state_p==SEL_PRODUCT){
         xQueueSend(lcd_queue, &msg, 1000); // go to start of second line
         lcd_queueString(options[current_option]);
-        write_price(prices[current_option], (current_option == 2) ? 26 : 29);
+        //write_price(prices[current_option], (current_option == 2) ? 26 : 29);
 
     // wait for key or one second timeout
     if (xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(1000)) == pdPASS)

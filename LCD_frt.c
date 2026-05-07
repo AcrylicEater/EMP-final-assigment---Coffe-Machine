@@ -1,6 +1,6 @@
 #include "LCD_frt.h"
 
-static uint8_t cursor_pos = 0;
+static volatile uint8_t cursor_pos = 0;
 
 
 void timer0_init(void)
