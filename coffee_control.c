@@ -32,12 +32,21 @@ const char *options[] = {
     "3:FILTER   kr/cl"
 };
 
-const char *payments[] = {
-    "1: CARD",
-    "2: CASH"
-};
 
-const uint8_t prices[] = {15, 27, 3};
+uint8_t prices[] = {15, 27, 3};
+
+uint8_t get_coffee_price(COFFEE_t product){
+    xSemaphoreTake(price_wr_mutex, portMAX_DELAY); //take the mutex, to ensure other tasks dont write to it
+    uint8_t price = prices[product];
+    xSemaphoreGive(price_wr_mutex);
+    return price;
+}
+
+void set_coffee_price(COFFEE_t product, uint8_t price){
+    xSemaphoreTake(price_wr_mutex, portMAX_DELAY); //take the mutex, to ensure other tasks dont write to it
+    prices[product] = price;
+    xSemaphoreGive(price_wr_mutex);
+}
 
 void write_price(uint8_t price, char start_index){
     char ch;
@@ -63,7 +72,8 @@ void select_product(MACHINE_STATES_t* state_p, COFFEE_t* selected_product_p){
     while(*state_p==SEL_PRODUCT){
         xQueueSend(lcd_queue, &msg, 1000); // go to start of second line
         lcd_queueString(options[current_option]);
-        write_price(prices[current_option], (current_option == 2) ? 25 : 28);
+
+        write_price(get_coffee_price(current_option), (current_option == 2) ? 25 : 28);
 
     // wait for key or one second timeout
     if (xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(2500)) == pdPASS)
@@ -101,10 +111,10 @@ void select_payment(MACHINE_STATES_t *state_p)
   char key;
   char msg = CLEAR_LCD;
   xQueueSend(lcd_queue, &msg, 1000);
-  lcd_queueString(payments[0]);
+  lcd_queueString("1: CARD");
   msg = 16; // command to go to start of second line
   xQueueSend(lcd_queue, &msg, 1000);
-  lcd_queueString(payments[1]);
+  lcd_queueString("2: CASH");
 
   while (*state_p == SEL_PAYMENT)
   {

@@ -46,10 +46,13 @@ typedef enum {
 } MACHINE_STATES_t;
 
 typedef enum {
-    ESPRESSO,
-    LATTE,
-    FILTER
+    ESPRESSO = 0,
+    LATTE    = 1,
+    FILTER   = 2
 } COFFEE_t;
+
+SemaphoreHandle_t price_wr_mutex;
+
 
 /***************** Functions ******************/
 
@@ -66,6 +69,21 @@ timestamp_t get_timestamp();
 *   Output   : struct containing current second, minute and hour
 *   Function : formats the systick count
 ******************************************************************************/
+
+void set_coffee_price(COFFEE_t product, uint8_t price);
+/*****************************************************************************
+*   Input    : new price to set and the product target
+*   Output   : -
+*   Function : freertos shared memory safe function to update coffee_price
+******************************************************************************/
+
+uint8_t get_coffee_price(COFFEE_t product);
+/*****************************************************************************
+*   Input    : product target
+*   Output   : price of product
+*   Function : freertos shared memory safe function to get coffee_price
+******************************************************************************/
+
 
 void userflow_Task(void *pvParameters);
 /*****************************************************************************

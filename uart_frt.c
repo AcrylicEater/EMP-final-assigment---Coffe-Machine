@@ -1,6 +1,7 @@
 
 #include "uart_frt.h"
 #include "Led.h"
+#include "coffee_control.h"
 #include <string.h>
 
 
@@ -96,6 +97,15 @@ void uart_tx_Task(void *pvParameters){
     }
 }
 
+uint8_t parse_price(char* key){
+    uint8_t price = 0;
+    while(*key >= '0' && *key <= '9'){
+        price *= 10;
+        price += *key + '0';
+        key++;
+    }
+}
+
 void uart_rx_Task(void *pvParameters){
 
     char cmd[RX_BUFFER_LEN];
@@ -115,6 +125,27 @@ void uart_rx_Task(void *pvParameters){
             rx_tail = 0;
             UART0_IM_R |= UART_IM_RXIM; //Re-enable uart RX interrupt
 
+            if(strncmp(cmd,"SET_PRICE ",10)==0){
+                char* key = &cmd[10];
+                switch(*key){
+                case 'E':
+                    set_coffee_price(ESPRESSO, parse_price(key++));
+                    break;
+                case 'L':
+                    set_coffee_price(LATTE, parse_price(key++));
+                    break;
+                case 'F':
+                    set_coffee_price(FILTER, parse_price(key++));
+                    break;
+                default:
+                    uart0_queueString("INVALID PRICE CMD");
+                }
+            } else{
+                uart0_queueString("INVALID CMD");
+            }
+
+            /*
+            //temp fjolle kommandoer
             if(strncmp(cmd,"GIV MIG GULD",msg_len) == 0){
                 uart0_queueString("Carl er sej\n");
             }
@@ -126,6 +157,7 @@ void uart_rx_Task(void *pvParameters){
                 led_cmd = 0;
                 xQueueSend(green_led_queue, &led_cmd, 1000);;
             }
+            */
         }
     }
 }
