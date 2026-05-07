@@ -1,4 +1,5 @@
 "./LCD_frt.obj"
+"./buttons.obj"
 "./coffee_control.obj"
 "./encoder_frt.obj"
 "./heap_2.obj"

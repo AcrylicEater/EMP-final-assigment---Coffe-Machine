@@ -13,6 +13,7 @@ ASM_SRCS += \
 
 C_SRCS += \
 ../LCD_frt.c \
+../buttons.c \
 ../coffee_control.c \
 ../encoder_frt.c \
 ../heap_2.c \
@@ -29,6 +30,7 @@ C_SRCS += \
 
 C_DEPS += \
 ./LCD_frt.d \
+./buttons.d \
 ./coffee_control.d \
 ./encoder_frt.d \
 ./heap_2.d \
@@ -45,6 +47,7 @@ C_DEPS += \
 
 OBJS += \
 ./LCD_frt.obj \
+./buttons.obj \
 ./coffee_control.obj \
 ./encoder_frt.obj \
 ./heap_2.obj \
@@ -65,6 +68,7 @@ ASM_DEPS += \
 
 OBJS__QUOTED += \
 "LCD_frt.obj" \
+"buttons.obj" \
 "coffee_control.obj" \
 "encoder_frt.obj" \
 "heap_2.obj" \
@@ -82,6 +86,7 @@ OBJS__QUOTED += \
 
 C_DEPS__QUOTED += \
 "LCD_frt.d" \
+"buttons.d" \
 "coffee_control.d" \
 "encoder_frt.d" \
 "heap_2.d" \
@@ -101,6 +106,7 @@ ASM_DEPS__QUOTED += \
 
 C_SRCS__QUOTED += \
 "../LCD_frt.c" \
+"../buttons.c" \
 "../coffee_control.c" \
 "../encoder_frt.c" \
 "../heap_2.c" \
