@@ -133,6 +133,12 @@ void lcd_queueString(char* string){
     }
 }
 
+void lcd_queueStringClear(char* string){
+    char msg = CLEAR_LCD;
+    xQueueSend(lcd_queue,&msg,1000);
+    lcd_queueString(string);
+}
+
 void lcd_Task(void *pvParameters){
     lcd_init();
 

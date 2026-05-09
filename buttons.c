@@ -1,5 +1,7 @@
 #include "buttons.h"
 
+extern QueueHandle_t green_led_queue;
+
 void buttons_init(void){
     GPIO_PORTF_LOCK_R = 0x4C4F434B;   // unlock GPIO Port F
     GPIO_PORTF_CR_R = 0x1F;           // allow changes
@@ -12,21 +14,23 @@ void buttons_init(void){
 }
 
 void SW_1_Task(void *pvParamerters){
-    uint8_t state;
+    uint8_t state = STATE_RELEASED;
+    uint8_t led_msg;
     while(1){
         switch (state)
         {
             case STATE_RELEASED:
                 if (!(GPIO_PORTF_DATA_R & SW_1_PIN)){
                     state = STATE_PRESSED;
-                    xQueueSend(SW_1_queue, &state, 1000);
+                    xQueueOverwrite(SW_1_queue, &state);
+
                 }
                 break;
 
             case STATE_PRESSED:
                 if (GPIO_PORTF_DATA_R & SW_1_PIN){
                     state = STATE_RELEASED;
-                    xQueueSend(SW_1_queue, &state, 1000);
+                    xQueueOverwrite(SW_1_queue, &state);
                 }
         }
 

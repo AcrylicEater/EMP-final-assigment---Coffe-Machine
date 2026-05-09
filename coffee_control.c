@@ -3,6 +3,7 @@
 #include "keypad_frt.h"
 #include "uart_frt.h"
 #include "buttons.h"
+#include "led.h"
 
 uint32_t get_runtime()
 {
@@ -64,10 +65,10 @@ void write_price(uint8_t price, char start_index){
 
 void select_product(MACHINE_STATES_t* state_p, COFFEE_t* selected_product_p){
     char key;
-    char msg = CLEAR_LCD;
-    xQueueSend(lcd_queue, &msg, 1000);
-    lcd_queueString("SELECT PRODUCT:");
-    msg = 16; //command to go to start of second line
+    char msg = 16; //command to go to start of second line
+
+    lcd_queueStringClear("SELECT PRODUCT:");
+
     int current_option = 0;
 
     while(*state_p==SEL_PRODUCT){
@@ -110,10 +111,8 @@ void select_product(MACHINE_STATES_t* state_p, COFFEE_t* selected_product_p){
 void select_payment(MACHINE_STATES_t *state_p)
 {
   char key;
-  char msg = CLEAR_LCD;
-  xQueueSend(lcd_queue, &msg, 1000);
-  lcd_queueString("1: CARD");
-  msg = 16; // command to go to start of second line
+  lcd_queueStringClear("1: CARD");
+  char msg = 16; // command to go to start of second line
   xQueueSend(lcd_queue, &msg, 1000);
   lcd_queueString("2: CASH");
 
@@ -142,8 +141,9 @@ void enter_card(MACHINE_STATES_t *state_p)
   // Clear display
   char msg = CLEAR_LCD;
   char key;
-  xQueueSend(lcd_queue, &msg, 1000);
-  lcd_queueString("ENTER NUM & PIN");
+  uint8_t sw2_msg;
+
+  lcd_queueStringClear("ENTER NUM & PIN");
   vTaskDelay(pdMS_TO_TICKS(1000));
   xQueueSend(lcd_queue, &msg, 1000);
   msg = 16;
@@ -161,17 +161,16 @@ void enter_card(MACHINE_STATES_t *state_p)
     // Show card numbers as they are typed
     // check key
     while(*state_p == ENTER_CARD){
-        if (xQueueReceive(keypad_queue, &key, portMAX_DELAY) == pdPASS)
+
+        if (xQueueReceive(keypad_queue, &key, 50) == pdPASS) //check for a key press
         {
             if((key == '*') || (key == '#')){ // delete character
               if(input_index){
                 input_index--;
 
-                if(input_index > 15){ //if we are entering pin code, we must account for offset from the PIN: string
-                    offset = 5;
-                } else{
-                    offset = 0;
-                }
+                //if we are entering pin code, we must account for offset from the PIN: string
+                offset = (input_index > 15) ? 5 : 0;
+
 
                 msg = input_index + offset;
                 xQueueSend(lcd_queue, &msg, 1000); //update cursor to 1 before current position
@@ -180,7 +179,7 @@ void enter_card(MACHINE_STATES_t *state_p)
                 msg = input_index + offset;
                 xQueueSend(lcd_queue, &msg, 1000); //update cursor to 1 before current position
               }
-             } else { //normal character
+             } else if(input_index < 20) { //normal character, and we are not full
 
               if(input_index < 16){
                 card_number[input_index] = key;
@@ -193,20 +192,26 @@ void enter_card(MACHINE_STATES_t *state_p)
               if(input_index == 16){
                   msg = 21;
                   xQueueSend(lcd_queue, &msg, 1000);
-              } else if(input_index == 20){
-                  if((card_number[15] % 2) == (pin_code[3] % 2)){
-                      *state_p = WAIT_CUP;
-                  } else{
-                      msg = CLEAR_LCD;
-                      xQueueSend(lcd_queue, &msg, 1000);
-                      lcd_queueString("INVALID CARD");
-                      vTaskDelay(pdMS_TO_TICKS(1000));
-                      *state_p = SEL_PAYMENT;
-                  }
               }
-
              }
+        }
 
+        if(xQueueReceive(SW_2_queue, &sw2_msg, 0) == pdPASS){ //check for start button press
+            if(sw2_msg == STATE_PRESSED){
+               if(input_index != 20){
+                   lcd_queueStringClear("NOT ENOUGH INFO");
+                   vTaskDelay(pdMS_TO_TICKS(1000));
+                   *state_p = SEL_PAYMENT;
+               } else{
+                   if((card_number[15] % 2) == (pin_code[3] % 2)){
+                       *state_p = WAIT_CUP;
+                   } else{
+                       lcd_queueStringClear("INVALID CARD");
+                       vTaskDelay(pdMS_TO_TICKS(1000));
+                       *state_p = SEL_PAYMENT;
+                   }
+               }
+            }
         }
     }
 }
@@ -250,8 +255,6 @@ void wait_for_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product){
     while(*state_p == WAIT_CUP){
         if(xQueueReceive(SW_1_queue, &SW_1_state, portMAX_DELAY) == pdPASS){
             if(SW_1_state == STATE_PRESSED){
-                xQueueSend(lcd_queue, &msg, 1000);
-                lcd_queueString("BRE STATE");
                 switch(*selected_product){
                     case ESPRESSO:
                         *state_p = BREW_ESPRESSO;
@@ -266,6 +269,65 @@ void wait_for_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product){
             }
         }
     }
+}
+
+void brew_espresso(MACHINE_STATES_t* state_p){
+    uint8_t sw1_msg;
+    const char lcd_line2 = 16;
+    const char loading_char = 0xFF;
+    const uint8_t led_on = ON_STATE;
+    const uint8_t led_off = OFF_STATE;
+
+    lcd_queueStringClear("GRINDING BEANS");
+    xQueueSend(lcd_queue,&lcd_line2,1000);
+    xQueueOverwrite(yellow_led_queue,&led_on);
+
+    uint8_t work_count = 0;
+
+    TickType_t lastWakeTime = xTaskGetTickCount();
+    while(*state_p == BREW_ESPRESSO){
+        uint16_t time_offset = (work_count < 16) ? GRIND_INTERVAL : BREW_INTERVAL;
+        if(xQueueReceive(SW_1_queue, &sw1_msg, 0) == pdPASS){
+            if(sw1_msg == STATE_RELEASED){
+                lcd_queueStringClear("BREWING STOPPED");
+                xQueueOverwrite(yellow_led_queue,&led_off);
+                xQueueOverwrite(red_led_queue,&led_off);
+                vTaskDelay(pdMS_TO_TICKS(1000));
+                *state_p = WAIT_CUP;
+            }
+        }
+
+        vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(time_offset));
+
+        xQueueSend(lcd_queue,&loading_char,1000);
+        work_count++;
+
+        if(work_count == 16){
+            lcd_queueStringClear("BREWING COFFEE");
+            xQueueSend(lcd_queue,&lcd_line2,1000);
+            xQueueOverwrite(red_led_queue,&led_on);
+            xQueueOverwrite(yellow_led_queue, &led_off);
+        } else if(work_count == 32){
+            *state_p= SEL_PRODUCT;
+        }
+
+        }
+
+}
+
+
+void brew_latte(MACHINE_STATES_t* state_p){
+    char msg = CLEAR_LCD;
+    xQueueSend(lcd_queue,&msg,1000);
+    lcd_queueString("PRESS START");
+    vTaskDelay(pdMS_TO_TICKS(1000));
+}
+
+void brew_filter(MACHINE_STATES_t* state_p){
+    char msg = CLEAR_LCD;
+    xQueueSend(lcd_queue,&msg,1000);
+    lcd_queueString("BREWING FILTER");
+    vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
 void userflow_Task(void *pvParameters)
@@ -292,6 +354,15 @@ void userflow_Task(void *pvParameters)
     case WAIT_CUP:
       wait_for_cup(&state, &selected_product);
       break;
+    case BREW_ESPRESSO:
+        brew_espresso(&state,&selected_product);
+        break;
+    case FROTH_MILK:
+        //froth_milk(&state);
+        break;
+    case BREW_FILTER:
+        brew_filter(&state);
+        break;
     }
   }
 }

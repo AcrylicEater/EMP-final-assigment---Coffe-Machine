@@ -89,6 +89,13 @@ void lcd_queueString(char* string);
 * Function: writes to characters to lcd queue
 ***********************************************/
 
+void lcd_queueStringClear(char* string);
+/**********************************************
+* Input: String to send to queue
+* Output: none
+* Function: clears lcd and writes  characters to lcd queue
+***********************************************/
+
 void lcd_Task(void *pvParameters);
 /**********************************************
 * Input: none

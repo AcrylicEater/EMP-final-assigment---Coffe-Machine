@@ -32,6 +32,8 @@ typedef struct {
 
 #define TIME_BASE  60
 #define SEC_IN_DAY TIME_BASE*TIME_BASE*24
+#define GRIND_INTERVAL 7500 / 16
+#define BREW_INTERVAL 14000 / 16
 
 typedef enum {
     SEL_PRODUCT,
@@ -41,7 +43,7 @@ typedef enum {
     RETURN_CHANGE,
     WAIT_CUP,
     BREW_ESPRESSO,
-    BREW_LATTE,
+    FROTH_MILK,
     BREW_FILTER,
     REMOVE_CUP,
 } MACHINE_STATES_t;

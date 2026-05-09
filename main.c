@@ -127,12 +127,12 @@ int main(void)
 
     uart_tx_queue = xQueueCreate(TX_QUEUE_LEN,sizeof(char));
 
-    green_led_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
-    yellow_led_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
-    red_led_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
+    green_led_queue = xQueueCreate(1,sizeof(uint8_t));
+    yellow_led_queue = xQueueCreate(1,sizeof(uint8_t));
+    red_led_queue = xQueueCreate(1,sizeof(uint8_t));
 
-    SW_1_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
-    SW_2_queue = xQueueCreate(QUEUE_LEN,sizeof(uint8_t));
+    SW_1_queue = xQueueCreate(1,sizeof(uint8_t));
+    SW_2_queue = xQueueCreate(1,sizeof(uint8_t));
 
     keypad_sem = xSemaphoreCreateBinary();
     encoder_sem = xSemaphoreCreateBinary();
@@ -148,7 +148,7 @@ int main(void)
 
     xTaskCreate(keypad_task, "Keypad Task", USERTASK_STACK_SIZE, NULL, PRIO_HIGH, NULL );
 
-    xTaskCreate(userflow_Task, "Userflow Task", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL);
+    xTaskCreate(userflow_Task, "Userflow Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, NULL);
     //xTaskCreate(dummy_Task2, "Dummy Task 2", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
 
     //xTaskCreate(encoder_Task, "Encoder Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, NULL);
@@ -163,7 +163,7 @@ int main(void)
     xTaskCreate(Yellow_LED_Task, "Yellow LED Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
     xTaskCreate(Red_LED_Task, "Red LED Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
 
-    xTaskCreate(SW_1_Task, "SW 1 Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
+    xTaskCreate(SW_1_Task, "SW 1 Task", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL);
     xTaskCreate(SW_2_Task, "SW 2 Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
 
     vTaskStartScheduler();
