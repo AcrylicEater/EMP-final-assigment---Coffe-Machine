@@ -86,18 +86,17 @@ void write_num(uint16_t num, QueueHandle_t *queue)
 void select_product(MACHINE_STATES_t *state_p, COFFEE_t *selected_product_p)
 {
   char key;
-  char msg = 16; // command to go to start of second line
+  int current_option = 0;
 
   lcd_queueStringClear("SELECT PRODUCT:");
 
-  int current_option = 0;
-
   while (*state_p == SEL_PRODUCT)
   {
-    xQueueSend(lcd_queue, &msg, 1000); // go to start of second line
-    lcd_queueString(options[current_option]);
+    lcd_queuePos(LCD_LINE2); // go to start of second line
+    lcd_queueString(options[current_option]); //write the name of the current option
 
-    write_price(get_coffee_price(current_option), (current_option == 2) ? 25 : 28);
+    //write the price of current option. Special consideration for filter, as it's price unit is different
+    write_price(get_coffee_price(current_option), (current_option == FILTER) ? 25 : 28);
 
     // wait for key or one second timeout
     if (xQueueReceive(keypad_queue, &key, pdMS_TO_TICKS(2500)) == pdPASS)
@@ -122,7 +121,7 @@ void select_product(MACHINE_STATES_t *state_p, COFFEE_t *selected_product_p)
     }
     else
     {
-      current_option = (current_option + 1) % 3;
+      current_option = (current_option + 1) % 3; // cycle through options, loop back at 3
     }
   }
 }
@@ -131,8 +130,7 @@ void select_payment(MACHINE_STATES_t *state_p)
 {
   char key;
   lcd_queueStringClear("1: CARD");
-  char msg = 16; // command to go to start of second line
-  xQueueSend(lcd_queue, &msg, 1000);
+  lcd_queuePos(LCD_LINE2);
   lcd_queueString("2: CASH");
 
   while (*state_p == SEL_PAYMENT)
@@ -157,19 +155,15 @@ void select_payment(MACHINE_STATES_t *state_p)
 
 void enter_card(MACHINE_STATES_t *state_p, char *card_number)
 {
-  // Clear display
-  char msg = CLEAR_LCD;
   char key;
   uint8_t sw2_msg;
 
   lcd_queueStringClear("ENTER NUM & PIN");
   vTaskDelay(pdMS_TO_TICKS(1000));
-  xQueueSend(lcd_queue, &msg, 1000);
-  msg = 16;
-  xQueueSend(lcd_queue, &msg, 1000);
+  lcd_queueClear();
+  lcd_queuePos(LCD_LINE2);
   lcd_queueString("PIN: ");
-  msg = 0;
-  xQueueSend(lcd_queue, &msg, 1000);
+  lcd_queuePos(0);
   int i;
   for (i = 0; i < 16; i++) card_number[i] = '\0';
   char pin_code[4];
@@ -190,12 +184,9 @@ void enter_card(MACHINE_STATES_t *state_p, char *card_number)
           // if we are entering pin code, we must account for offset from the PIN: string
           offset = (input_index > 15) ? 5 : 0;
 
-          msg = input_index + offset;
-          xQueueSend(lcd_queue, &msg, 1000); // update cursor to 1 before current position
-          msg = ' ';
-          xQueueSend(lcd_queue, &msg, 1000); // clear current character
-          msg = input_index + offset;
-          xQueueSend(lcd_queue, &msg, 1000); // update cursor to 1 before current position
+          lcd_queuePos(input_index + offset); // update cursor to 1 before current position
+          lcd_queueString(" ");               // delete character
+          lcd_queuePos(input_index + offset); // update cursor to 1 before current position
       }
       else if (input_index < 20)
       { // normal character, and we are not full
@@ -208,8 +199,7 @@ void enter_card(MACHINE_STATES_t *state_p, char *card_number)
         xQueueSend(lcd_queue, &key, 1000);
         if (input_index++ == 15)
         {
-          msg = 21;
-          xQueueSend(lcd_queue, &msg, 1000);
+          lcd_queuePos(21); // account for the PIN: string
         }
       }
     }

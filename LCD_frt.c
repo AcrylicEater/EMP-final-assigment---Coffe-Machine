@@ -76,8 +76,8 @@ void lcd_setcursor(uint8_t pos)
 
     if(pos>31){return;} //invalid address
 
-    if(pos > 15){
-        addr = LCD_OFFSET + (pos - 16);
+    if(pos >= LCD_LINE2){ // if cursor pos is at second line
+        addr = LCD_OFFSET + (pos - LCD_LINE2); //then we must account for the extra offscreen cursor spaces
     }
 
     lcd_command(SET_DDRAM_CMD | addr); // Set DDRAM address
@@ -99,8 +99,8 @@ void lcd_char(uint8_t character){
 
     cursor_pos++;
 
-    if(cursor_pos == 16){
-        lcd_setcursor(16);
+    if(cursor_pos == LCD_LINE2){
+        lcd_setcursor(LCD_LINE2);
     }
     else if(cursor_pos >= 32){
         lcd_setcursor(0);
@@ -123,6 +123,18 @@ void lcd_clear(){
 
 uint8_t lcd_getcursor(){
     return cursor_pos;
+}
+
+void lcd_queueClear(){
+    char msg = CLEAR_LCD;
+    xQueueSend(lcd_queue,&msg,1000);
+}
+
+void lcd_queuePos(uint8_t pos){
+    if(pos>31){return;}
+
+    char msg = pos;
+    xQueueSend(lcd_queue,&msg,1000);
 }
 
 void lcd_queueString(char* string){

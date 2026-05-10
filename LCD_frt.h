@@ -29,7 +29,9 @@
 
 #define TIMEOUT       1000
 #define QUEUE_LEN     32
+
 #define CLEAR_LCD     0x7F
+#define LCD_LINE2     16
 
 #define SET_DDRAM_CMD 0x80
 #define LCD_OFFSET    0x40
@@ -80,7 +82,21 @@ uint8_t lcd_getcursor();
 * Input: none
 * Output: current cursor position
 * Function: returns cursor position
-***********************************************/
+***********************************************/ 
+
+void lcd_queueClear();
+/**********************************************
+* Input: none
+* Output: writes to lcd_queue
+* Function: shorthand function to send a clear command to lcd_queue
+***********************************************/ 
+
+void lcd_queuePos(uint8_t pos);
+/**********************************************
+* Input: none
+* Output: writes to lcd_queue
+* Function: shorthand function to send a cursor posittion command to lcd_queue
+***********************************************/ 
 
 void lcd_queueString(char* string);
 /**********************************************
