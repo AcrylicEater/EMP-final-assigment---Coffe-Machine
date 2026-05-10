@@ -6,6 +6,9 @@
 #include "led.h"
 #include "encoder_frt.h"
 
+  const uint8_t led_on = ON_STATE;
+  const uint8_t led_off = OFF_STATE;
+
 uint32_t get_runtime()
 {
   return xTaskGetTickCount() / configTICK_RATE_HZ;
@@ -419,7 +422,7 @@ void froth_milk(MACHINE_STATES_t *state_p)
 
 
 
-  void brew_filter(MACHINE_STATES_t *state_p, uint16_t paid_cash, uint16_t *amount)
+void brew_filter(MACHINE_STATES_t *state_p, uint16_t paid_cash, uint16_t *amount)
 {
   uint8_t sw1_msg;
   uint8_t sw2_msg;
@@ -427,24 +430,23 @@ void froth_milk(MACHINE_STATES_t *state_p)
   const char lcd_line2 = 16;
   const char lcd_line1 = 0;
   TickType_t timeout_stamp = 0;
-  TickType_t worktime_stamp = xTaskGetTickCount();
-  const uint8_t led_on = ON_STATE;
-  const uint8_t led_off = OFF_STATE;
 
-  uint16_t max_amount = 0xFFFF;
-  if(paid_cash)
-    max_amount = 10*( paid_cash / get_coffee_price(FILTER) );
+  uint8_t producing = TRUE;
 
-  *amount = 0;
+  //if we pay with card, paid cash is 0 and there is no max prepaid amount
+  uint16_t max_amount = (!paid_cash) ? 0xFFFF : ( paid_cash / get_coffee_price(FILTER));
+  double amount_precise = 0.0f;
 
   lcd_queueStringClear("DISPENSE COFFEE");
   xQueueSend(lcd_queue, &lcd_line2, 1000);
-  write_num(*amount,&lcd_queue);
+  write_num(0, &lcd_queue);
   lcd_queueString(" ml");
   xQueueOverwrite(yellow_led_queue, &led_on);
 
+  TickType_t worktime_stamp = xTaskGetTickCount();
   while (*state_p == BREW_FILTER)
   {
+    //check if cup was removed
     if (xQueueReceive(SW_1_queue, &sw1_msg, 0) == pdPASS && sw1_msg == STATE_RELEASED)
     {
         lcd_queueStringClear("BREWING STOPPED");
@@ -455,66 +457,56 @@ void froth_milk(MACHINE_STATES_t *state_p)
         return;
     }
 
-    switch (state)
-    {
-    case WAIT_FOR_RELEASE:
-      if (xQueueReceive(SW_2_queue, &sw2_msg, 100) == pdPASS && sw2_msg == STATE_RELEASED)
+    vTaskDelayUntil(&worktime_stamp, pdMS_TO_TICKS(1000 / FILTER_FREQ)); //wait for a filter cycle
+
+    if(producing) //here we will produce coffee until sw2 is released or max amount is reached
+    { 
+    //if sw2 is released, pause dispensing
+      if (xQueueReceive(SW_2_queue, &sw2_msg, 0) == pdPASS && sw2_msg == STATE_RELEASED)
       {
         xQueueSend(lcd_queue, &lcd_line1, 1000); 
         lcd_queueString("DISPENSE STOPPED");
         xQueueOverwrite(yellow_led_queue, &led_off);
         timeout_stamp = xTaskGetTickCount();
-        state = 1; 
-      }
-      if(xTaskGetTickCount() - worktime_stamp >= pdMS_TO_TICKS(1000)){
-        worktime_stamp = xTaskGetTickCount();
-        *amount += (*amount < 3*START_SPEED) ? START_SPEED : LATER_SPEED;
-        if(*amount > max_amount){
-          *amount = max_amount;
-          xQueueOverwrite(yellow_led_queue, &led_off);
-          lcd_queueStringClear("CASH EXHAUSTED");
-          xQueueSend(lcd_queue, &lcd_line2, 1000);
-          write_num(*amount,&lcd_queue);
-          lcd_queueString(" ml / ");
-          write_num( (*amount / 10) * get_coffee_price(FILTER), &lcd_queue );
-          lcd_queueString(" kr");
-          vTaskDelay(pdMS_TO_TICKS(2000));
-          *state_p = REMOVE_CUP;
-          return;
-        }else{
-          xQueueSend(lcd_queue, &lcd_line2, 1000);
-          write_num(*amount, &lcd_queue);
-          lcd_queueString(" ml");
-        }
-
+        producing = FALSE; 
       }
 
-      break;
-    case WAIT_FOR_PRESS:
+      amount_precise += (amount_precise < SPEED_CHANGE) ? START_SPEED : LATER_SPEED; //calculate the amount dispensed, take account for the speed up
+      if(amount_precise > max_amount){ //check if we have reached the max amount
+        amount_precise = max_amount;
+        lcd_queueStringClear("CASH EXHAUSTED");
+        *state_p = REMOVE_CUP; //if so, stop dispensing
+      } else{
+        xQueueSend(lcd_queue, &lcd_line2, 1000);
+        write_num((uint16_t)(amount_precise*10.0f), &lcd_queue);
+        lcd_queueString(" ml");
+      }
+    }
+    else{ //Here we will wait until SW2 is pressed or 5 seconds have passed
       if (xTaskGetTickCount() - timeout_stamp >= pdMS_TO_TICKS(5000)){
           lcd_queueStringClear("PRODUCT FINISHED");
-          xQueueOverwrite(yellow_led_queue, &led_off);
-          xQueueSend(lcd_queue, &lcd_line2, 1000);
-          write_num(*amount,&lcd_queue);
-          lcd_queueString(" ml / ");
-          write_num( (*amount / 10) * get_coffee_price(FILTER),&lcd_queue );
-          lcd_queueString(" kr");
-          vTaskDelay(pdMS_TO_TICKS(2000));
           *state_p = REMOVE_CUP;
-          return;
       } 
-      if (xQueueReceive(SW_2_queue, &sw2_msg, 100) == pdPASS && sw2_msg == STATE_PRESSED)
+      else if (xQueueReceive(SW_2_queue, &sw2_msg, 100) == pdPASS && sw2_msg == STATE_PRESSED)
       {
         xQueueSend(lcd_queue, &lcd_line1, 1000);
         lcd_queueString("DISPENSE COFFEE ");
         xQueueOverwrite(yellow_led_queue, &led_on);
-        worktime_stamp = xTaskGetTickCount();
-        state = 0;
+        producing = TRUE;
       }
-      
-      break;
+    }
     }
   }
+
+  //before we leave this state
+  *amount = (uint16_t)amount_precise;
+
+  xQueueSend(lcd_queue, &lcd_line2, 1000);
+  write_num(*amount,&lcd_queue);
+  lcd_queueString(" cl / ");
+  write_num( *amount * get_coffee_price(FILTER), &lcd_queue );
+  lcd_queueString(" kr");
+  vTaskDelay(pdMS_TO_TICKS(2000));
 }
 
 void remove_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product, char *card_number, uint16_t *paid_cash, uint16_t *amount)
@@ -558,7 +550,7 @@ void remove_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product, char *car
   uart0_queueString("\n");
 
   uart0_queueString("PAYED AMOUNT: ");
-  uint16_t coffee_price = amount * get_coffee_price(*selected_product);
+  uint16_t coffee_price = *amount * get_coffee_price(*selected_product);
   write_num(coffee_price, &uart_tx_queue);
   uart0_queueString("\n");
 

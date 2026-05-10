@@ -38,8 +38,11 @@ typedef struct {
 #define WAIT_FOR_RELEASE 0
 #define WAIT_FOR_PRESS   1
 
-#define START_SPEED 60
-#define LATER_SPEED 145
+#define FILTER_FREQ 10
+#define START_SPEED 0.6 / FILTER_FREQ
+#define LATER_SPEED 14.5 / FILTER_FREQ
+#define SPEED_CHANGE 3*START_SPEED*FILTER_FREQ 
+
 
 typedef enum {
     SEL_PRODUCT,
