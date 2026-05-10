@@ -486,9 +486,8 @@ void brew_filter(MACHINE_STATES_t *state_p, uint16_t paid_cash, uint16_t *amount
       }
     }
     }
-  }
 
-  //before we leave this state
+      //before we leave this state
   *amount = (uint16_t)amount_precise;
 
   xQueueSend(lcd_queue, &lcd_line2, 1000);
@@ -497,7 +496,10 @@ void brew_filter(MACHINE_STATES_t *state_p, uint16_t paid_cash, uint16_t *amount
   write_num( *amount * get_coffee_price(FILTER), &lcd_queue );
   lcd_queueString(" kr");
   vTaskDelay(pdMS_TO_TICKS(2000));
-}
+  }
+
+
+
 
 void remove_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product, char *card_number, uint16_t *paid_cash, uint16_t *amount)
 {
@@ -516,7 +518,6 @@ void remove_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product, char *car
       break;
     case FILTER:
       uart0_queueString("FILTER\n");
-      *amount /= 10;
       break;
   }
 
@@ -532,14 +533,14 @@ void remove_cup(MACHINE_STATES_t* state_p, COFFEE_t* selected_product, char *car
   write_num(*amount,&uart_tx_queue);
   uart0_queueString("\n");
 
-  uart0_queueString("PAYMENT TYPE: ");
+  uart0_queueString("PAYMENT: ");
   if(*paid_cash)
     uart0_queueString("CASH");
   else
     uart0_queueString(card_number);
   uart0_queueString("\n");
 
-  uart0_queueString("PAYED AMOUNT: ");
+  uart0_queueString("AMOUNT: ");
   uint16_t coffee_price = *amount * get_coffee_price(*selected_product);
   write_num(coffee_price, &uart_tx_queue);
   uart0_queueString("\n");
