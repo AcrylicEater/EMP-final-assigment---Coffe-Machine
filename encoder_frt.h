@@ -33,8 +33,9 @@
 
 #define GPIOA_INTPRIO 5 //priority of interrupt
 
-QueueHandle_t encoder_queue; //Muligvis midlertidig
+QueueHandle_t encoder_queue; 
 SemaphoreHandle_t encoder_sem;
+TaskHandle_t encoder_task;
 
 
 /***************** Functions ******************/

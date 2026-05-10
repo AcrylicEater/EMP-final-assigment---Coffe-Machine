@@ -44,6 +44,7 @@ extern SemaphoreHandle_t    encoder_sem;
 extern SemaphoreHandle_t    uart_rx_sem;
 extern SemaphoreHandle_t price_wr_mutex;
 
+extern TaskHandle_t encoder_task;
 
 
 
@@ -151,7 +152,7 @@ int main(void)
     xTaskCreate(userflow_Task, "Userflow Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, NULL);
     //xTaskCreate(dummy_Task2, "Dummy Task 2", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
 
-    //xTaskCreate(encoder_Task, "Encoder Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, NULL);
+    xTaskCreate(encoder_Task, "Encoder Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, &encoder_task);
     //xTaskCreate(dummy_Task3, "Dummy Task 3", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL );
 
     xTaskCreate(uart_tx_Task, "Uart TX Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
