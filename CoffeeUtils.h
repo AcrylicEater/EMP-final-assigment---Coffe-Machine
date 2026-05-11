@@ -29,10 +29,13 @@ typedef struct {
     uint8_t  hr;
 } timestamp_t;
 
+typedef enum
+
 #define TIME_BASE  60
 #define SEC_IN_DAY TIME_BASE*TIME_BASE*24
 
 SemaphoreHandle_t price_wr_mutex;
+SemaphoreHandle_t data_wr_mutex;
 
 
 /***************** functions ********************/

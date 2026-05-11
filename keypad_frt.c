@@ -40,7 +40,7 @@ uint8_t port_to_index(uint8_t p_data){
 }
 
 //The state and the delay is used for debouncing
-void keypad_task(void *pvParameters){
+void keypad_Task(void *pvParameters){
     static uint8_t state = STATE_RELEASED;
     keypad_init();
 

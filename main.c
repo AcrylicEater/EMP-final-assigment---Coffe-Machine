@@ -45,6 +45,7 @@ extern SemaphoreHandle_t    uart_rx_sem;
 extern SemaphoreHandle_t price_wr_mutex;
 
 extern TaskHandle_t encoder_task;
+extern TaskHandle_t keypad_task;
 
 
 
@@ -73,7 +74,7 @@ int main(void)
     buttons_init();
 
     xTaskCreate(lcd_Task, "LCD Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL );
-    xTaskCreate(keypad_task, "Keypad Task", USERTASK_STACK_SIZE, NULL, PRIO_HIGH, NULL );
+    xTaskCreate(keypad_Task, "Keypad Task", USERTASK_STACK_SIZE, NULL, PRIO_HIGH, &keypad_task);
     xTaskCreate(encoder_Task, "Encoder Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, &encoder_task);
 
     xTaskCreate(uart_tx_Task, "Uart TX Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
@@ -83,10 +84,10 @@ int main(void)
     xTaskCreate(Yellow_LED_Task, "Yellow LED Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
     xTaskCreate(Red_LED_Task, "Red LED Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
 
-    xTaskCreate(SW_1_Task, "SW 1 Task", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL);
-    xTaskCreate(SW_2_Task, "SW 2 Task", USERTASK_STACK_SIZE, NULL, PRIO_LOW, NULL);
+    xTaskCreate(SW_1_Task, "SW 1 Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, NULL);
+    xTaskCreate(SW_2_Task, "SW 2 Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, NULL);
 
-    xTaskCreate(userflow_Task, "Userflow Task", USERTASK_STACK_SIZE, NULL, PRIO_VERYMID, NULL);
+    xTaskCreate(userflow_Task, "Userflow Task", USERTASK_STACK_SIZE, NULL, PRIO_MID, NULL);
     vTaskStartScheduler();
 
 	return 0;

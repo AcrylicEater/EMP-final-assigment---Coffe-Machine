@@ -23,6 +23,9 @@ void select_product(MACHINE_STATES_t *state_p, COFFEE_t *selected_product_p)
 
   lcd_queueStringClear("SELECT PRODUCT:");
 
+  xSemaphoreTake(keypad_sem,0); //if has pressed a key before the task was resumed, and old wakeup might wait
+  vTaskResume(keypad_task);     //resume the keypad task
+
   while (*state_p == SEL_PRODUCT)
   {
     lcd_queuePos(LCD_LINE2); // go to start of second line
@@ -144,8 +147,10 @@ void enter_card(MACHINE_STATES_t *state_p, char *card_number)
         vTaskDelay(pdMS_TO_TICKS(SECOND));
         *state_p = SEL_PAYMENT;
       }
-      else if ((card_number[15] % 2) == (pin_code[3] % 2)) // correct card format
+      else if ((card_number[15] % 2) == (pin_code[3] % 2)){ // correct card format
         *state_p = WAIT_CUP;
+         vTaskSuspend(keypad_task); //suspend the keypad task before leaving this state
+      }
       else // invalid card format
       {
         lcd_queueStringClear("INVALID CARD");
@@ -163,7 +168,9 @@ void enter_cash(MACHINE_STATES_t *state_p, COFFEE_t *select_product, uint16_t *p
   int8_t sw2_msg;
 
   uint16_t price = get_coffee_price(*select_product);
-  // Resume encoder thingy
+
+  // Resume encoder thingy and suspend the keypad
+  vTaskSuspend(keypad_task);
   xSemaphoreTake(encoder_sem, 0); // if has turned the encoder before the task was resumed, and old wakeup might wait
   vTaskResume(encoder_task);  // resume the encoder task
 
@@ -330,8 +337,6 @@ void brew_filter(MACHINE_STATES_t *state_p, uint16_t paid_cash, uint16_t *amount
 {
   uint8_t sw1_msg;
   uint8_t sw2_msg;
-  const char lcd_line2 = 16;
-  const char lcd_line1 = 0;
   TickType_t timeout_stamp = 0;
 
   uint8_t producing = TRUE;
@@ -396,7 +401,7 @@ void brew_filter(MACHINE_STATES_t *state_p, uint16_t paid_cash, uint16_t *amount
         producing = TRUE;
       }
     }
-    }
+  }
 
   //before we leave this state
   *amount = (uint16_t)amount_precise;
@@ -407,7 +412,7 @@ void brew_filter(MACHINE_STATES_t *state_p, uint16_t paid_cash, uint16_t *amount
   write_num( *amount * get_coffee_price(FILTER), &lcd_queue );
   lcd_queueString(" kr");
   vTaskDelay(pdMS_TO_TICKS(2*SECOND));
-  }
+}
 
 
 void remove_cup(MACHINE_STATES_t* state_p)
@@ -415,19 +420,8 @@ void remove_cup(MACHINE_STATES_t* state_p)
   uint8_t sw1_msg;
 
   lcd_queueStringClear("REMOVE THE CUP");
-
   while (*state_p == REMOVE_CUP)
     if (xQueueReceive(SW_1_queue, &sw1_msg, SECOND / OP_FREQ) == pdPASS && sw1_msg == STATE_RELEASED) *state_p = FINISH_PROD;
- }
-
- void cup_abort(MACHINE_STATES_t* state_p)
- {
-    lcd_queueStringClear("FUCK YOU BITCH  IMA KEEP YO CASH");
-    while (*state_p == FINISH_PROD)
-    {
-      vTaskDelay(pdMS_TO_TICKS(2500));
-      *state_p = SEL_PRODUCT; 
-    }
  }
 
 

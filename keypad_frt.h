@@ -33,6 +33,7 @@
 
 QueueHandle_t       keypad_queue;
 SemaphoreHandle_t   keypad_sem;
+TaskHandle_t        keypad_task;
 
 
 
@@ -44,7 +45,7 @@ void keypad_init(void);
 * Function: setup TIVA hardware for keypad
 ***********************************************/
 
-void keypad_task(void *pvParameters);
+void keypad_Task(void *pvParameters);
 /**********************************************
 * Input: none
 * Output: may write to queue

@@ -39,6 +39,17 @@ void set_coffee_price(COFFEE_t product, uint8_t price)
   xSemaphoreGive(price_wr_mutex);
 }
 
+struct operating_data {
+    uint16_t nof_espresso;
+    uint16_t nof_latte;
+    uint16_t nof_filter;
+    uint16_t cash_amount;
+    uint16_t card_amount
+};
+
+struct operating_data op_data = {0,0,0,0,0};
+
+
 void write_price(uint8_t price, char start_index)
 {
   char ch;
