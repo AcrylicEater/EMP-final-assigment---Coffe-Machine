@@ -12,6 +12,7 @@ ASM_SRCS += \
 ../portasm.asm 
 
 C_SRCS += \
+../CoffeeUtils.c \
 ../LCD_frt.c \
 ../buttons.c \
 ../coffee_control.c \
@@ -29,6 +30,7 @@ C_SRCS += \
 ../uart_frt.c 
 
 C_DEPS += \
+./CoffeeUtils.d \
 ./LCD_frt.d \
 ./buttons.d \
 ./coffee_control.d \
@@ -46,6 +48,7 @@ C_DEPS += \
 ./uart_frt.d 
 
 OBJS += \
+./CoffeeUtils.obj \
 ./LCD_frt.obj \
 ./buttons.obj \
 ./coffee_control.obj \
@@ -67,6 +70,7 @@ ASM_DEPS += \
 ./portasm.d 
 
 OBJS__QUOTED += \
+"CoffeeUtils.obj" \
 "LCD_frt.obj" \
 "buttons.obj" \
 "coffee_control.obj" \
@@ -85,6 +89,7 @@ OBJS__QUOTED += \
 "uart_frt.obj" 
 
 C_DEPS__QUOTED += \
+"CoffeeUtils.d" \
 "LCD_frt.d" \
 "buttons.d" \
 "coffee_control.d" \
@@ -105,6 +110,7 @@ ASM_DEPS__QUOTED += \
 "portasm.d" 
 
 C_SRCS__QUOTED += \
+"../CoffeeUtils.c" \
 "../LCD_frt.c" \
 "../buttons.c" \
 "../coffee_control.c" \

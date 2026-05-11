@@ -1,6 +1,7 @@
 
 #include "uart_frt.h"
 #include "Led.h"
+#include "CoffeeUtils.h"
 #include "coffee_control.h"
 #include <string.h>
 

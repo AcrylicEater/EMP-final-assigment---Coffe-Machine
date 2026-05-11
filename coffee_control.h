@@ -24,19 +24,14 @@
 
 /***************** Defines ********************/
 
-typedef struct {
-    uint8_t sec;
-    uint8_t min;
-    uint8_t  hr;
-} timestamp_t;
 
-#define TIME_BASE  60
-#define SEC_IN_DAY TIME_BASE*TIME_BASE*24
+#define PROD_DISP_SPEED 2500
+#define PRICE_INDEX     28
+#define PRICE_INDEX_F   25
+
 #define GRIND_INTERVAL 7500 / 16
 #define BREW_INTERVAL 14000 / 16
 #define FROTH_INTERVAL 6200 / 16
-#define WAIT_FOR_RELEASE 0
-#define WAIT_FOR_PRESS   1
 
 #define FILTER_FREQ 10
 #define START_SPEED 0.6 / FILTER_FREQ
@@ -55,7 +50,8 @@ typedef enum {
     FROTH_MILK,
     BREW_FILTER,
     REMOVE_CUP,
-    CUP_ABORTED
+    CUP_ABORTED,
+    FINISH_PROD
 } MACHINE_STATES_t;
 
 typedef enum {
@@ -64,39 +60,9 @@ typedef enum {
     FILTER   = 2
 } COFFEE_t;
 
-SemaphoreHandle_t price_wr_mutex;
 
 
 /***************** Functions ******************/
-
-uint32_t get_runtime();
-/*****************************************************************************
-*   Input    : -
-*   Output   : runtime since FreeRTOS scheduler was started
-*   Function : calculates the amount of seconds the machine has been on
-******************************************************************************/
-
-timestamp_t get_timestamp();
-/*****************************************************************************
-*   Input    : -
-*   Output   : struct containing current second, minute and hour
-*   Function : formats the systick count
-******************************************************************************/
-
-void set_coffee_price(COFFEE_t product, uint8_t price);
-/*****************************************************************************
-*   Input    : new price to set and the product target
-*   Output   : -
-*   Function : freertos shared memory safe function to update coffee_price
-******************************************************************************/
-
-uint8_t get_coffee_price(COFFEE_t product);
-/*****************************************************************************
-*   Input    : product target
-*   Output   : price of product
-*   Function : freertos shared memory safe function to get coffee_price
-******************************************************************************/
-
 
 void userflow_Task(void *pvParameters);
 /*****************************************************************************

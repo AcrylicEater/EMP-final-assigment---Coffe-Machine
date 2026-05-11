@@ -10,6 +10,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./CoffeeUtils.obj" \
 "./LCD_frt.obj" \
 "./buttons.obj" \
 "./coffee_control.obj" \
@@ -156,8 +157,8 @@ Final\ assigment.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "LCD_frt.obj" "buttons.obj" "coffee_control.obj" "encoder_frt.obj" "heap_2.obj" "keypad_frt.obj" "led.obj" "list.obj" "main.obj" "port.obj" "portasm.obj" "queue.obj" "startup_frt.obj" "systick_frt.obj" "tasks.obj" "uart_frt.obj" 
-	-$(RM) "LCD_frt.d" "buttons.d" "coffee_control.d" "encoder_frt.d" "heap_2.d" "keypad_frt.d" "led.d" "list.d" "main.d" "port.d" "queue.d" "startup_frt.d" "systick_frt.d" "tasks.d" "uart_frt.d" 
+	-$(RM) "CoffeeUtils.obj" "LCD_frt.obj" "buttons.obj" "coffee_control.obj" "encoder_frt.obj" "heap_2.obj" "keypad_frt.obj" "led.obj" "list.obj" "main.obj" "port.obj" "portasm.obj" "queue.obj" "startup_frt.obj" "systick_frt.obj" "tasks.obj" "uart_frt.obj" 
+	-$(RM) "CoffeeUtils.d" "LCD_frt.d" "buttons.d" "coffee_control.d" "encoder_frt.d" "heap_2.d" "keypad_frt.d" "led.d" "list.d" "main.d" "port.d" "queue.d" "startup_frt.d" "systick_frt.d" "tasks.d" "uart_frt.d" 
 	-$(RM) "portasm.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
