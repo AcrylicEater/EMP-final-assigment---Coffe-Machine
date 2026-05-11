@@ -29,7 +29,13 @@ typedef struct {
     uint8_t  hr;
 } timestamp_t;
 
-typedef enum
+typedef enum {
+    NOF_ESPRESSO,
+    NOF_LATTE,
+    NOF_FILTER,
+    CASH_AMOUNT,
+    CARD_AMOUNT
+} OPDATA_t;
 
 #define TIME_BASE  60
 #define SEC_IN_DAY TIME_BASE*TIME_BASE*24
@@ -65,6 +71,20 @@ uint8_t get_coffee_price(COFFEE_t product);
 *   Input    : product target
 *   Output   : price of product
 *   Function : freertos shared memory safe function to get coffee_price
+******************************************************************************/
+
+void increment_operating_data(OPDATA_t target_data, uint16_t amount);
+/*****************************************************************************
+*   Input    : the target data and amount to increment it
+*   Output   : -
+*   Function : freertos shared memory safe function to update operating_data
+******************************************************************************/
+
+uint16_t get_operating_data(OPDATA_t target_data);
+/*****************************************************************************
+*   Input    : product target
+*   Output   : value of target
+*   Function : freertos shared memory safe function to update operating_data
 ******************************************************************************/
 
 void write_price(uint8_t price, char start_index);

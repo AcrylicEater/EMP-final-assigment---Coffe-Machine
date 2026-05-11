@@ -49,6 +49,55 @@ struct operating_data {
 
 struct operating_data op_data = {0,0,0,0,0};
 
+void increment_operating_data(OPDATA_t target_data, uint16_t amount)
+{
+  xSemaphoreTake(data_wr_mutex, portMAX_DELAY); // take the mutex, to ensure other tasks dont write to it
+  switch (target_data)
+  {
+  case NOF_ESPRESSO:
+    op_data.nof_espresso += amount;
+    break;
+  case NOF_LATTE:
+    op_data.nof_latte += amount;
+    break;
+  case NOF_FILTER:
+    op_data.nof_filter += amount;
+    break;
+  case CASH_AMOUNT:
+    op_data.cash_amount += amount;
+    break;
+  case CARD_AMOUNT:
+    op_data.card_amount += amount;
+    break;
+  }
+  xSemaphoreGive(data_wr_mutex); // release the mutex
+}
+
+uint16_t get_operating_data(OPDATA_t target_data)
+{
+  xSemaphoreTake(data_wr_mutex, portMAX_DELAY); // take the mutex, to ensure other tasks dont write to it
+  uint16_t data;
+  switch(target_data){
+    case NOF_ESPRESSO:
+      data = op_data.nof_espresso;
+      break;
+    case NOF_LATTE:
+      data = op_data.nof_latte;
+      break;
+    case NOF_FILTER:
+      data = op_data.nof_filter;
+      break;
+    case CASH_AMOUNT:
+      data = op_data.cash_amount;
+      break;
+    case CARD_AMOUNT:
+      data = op_data.card_amount;
+      break;
+  }
+  xSemaphoreGive(data_wr_mutex); // release the mutex
+  return data;
+}
+
 
 void write_price(uint8_t price, char start_index)
 {

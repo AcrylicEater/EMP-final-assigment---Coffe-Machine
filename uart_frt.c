@@ -112,6 +112,27 @@ uint8_t parse_price(char* key){
     return (uint8_t)price;
 }
 
+void report_data(){
+    //report the amount of coffees sold
+    uart0_queueString("\nESPRESSOS: ");
+    write_num(get_operating_data(NOF_ESPRESSO),&uart_tx_queue);
+    uart0_queueString("\nLATTES: ");
+    write_num(get_operating_data(NOF_LATTE),&uart_tx_queue);
+    uart0_queueString("\nFILTERS: ");
+    write_num(get_operating_data(NOF_FILTER),&uart_tx_queue);
+    uart0_queueString("\n");
+
+    //report the earnings
+    uart0_queueString("\nCASH EARNINGS: ");
+    write_num(get_operating_data(CASH_AMOUNT),&uart_tx_queue);
+    uart0_queueString("\nCARD EARNINGS: ");
+    write_num(get_operating_data(CARD_AMOUNT),&uart_tx_queue);
+    uart0_queueString("\n");
+
+    uart0_queueString("\nUPTIME: ");
+    write_num(get_runtime(),&uart_tx_queue);
+}
+
 void uart_rx_Task(void *pvParameters){
 
     char cmd[RX_BUFFER_LEN];
@@ -149,24 +170,13 @@ void uart_rx_Task(void *pvParameters){
                 default:
                     uart0_queueString("INVALID PRICE CMD");
                 }
-            } else{
+            } else if(strncmp(cmd,"REPORT",6)==0){
+                report_data();
+            }
+            else{
                 uart0_queueString("INVALID CMD");
             }
 
-            /*
-            //temp fjolle kommandoer
-            if(strncmp(cmd,"GIV MIG GULD",msg_len) == 0){
-                uart0_queueString("Carl er sej\n");
-            }
-            if(strncmp(cmd,"SHOW ME MONEY",msg_len) == 0){
-                led_cmd = 1;
-                xQueueSend(green_led_queue, &led_cmd, 1000);;
-            }
-            if(strncmp(cmd,"MONEY AWAY",msg_len) == 0){
-                led_cmd = 0;
-                xQueueSend(green_led_queue, &led_cmd, 1000);;
-            }
-            */
         }
     }
 }

@@ -431,12 +431,15 @@ void finish_prod(MACHINE_STATES_t* state_p, COFFEE_t* selected_product, char *ca
   uart0_queueString("PRODUCT: ");
   switch(*selected_product){
     case ESPRESSO:
+      increment_operating_data(NOF_ESPRESSO, 1);
       uart0_queueString("ESPRESSO\n");
       break;
     case LATTE:
+      increment_operating_data(NOF_LATTE, 1);
       uart0_queueString("LATTE\n");
       break;
     case FILTER:
+      increment_operating_data(NOF_FILTER, 1);
       uart0_queueString("FILTER\n");
       break;
   }
@@ -453,14 +456,16 @@ void finish_prod(MACHINE_STATES_t* state_p, COFFEE_t* selected_product, char *ca
   write_num(*amount,&uart_tx_queue);
   uart0_queueString("\n");
 
-  uart0_queueString("PAYMENT: ");
-  if(*paid_cash)
-    uart0_queueString("CASH\n");
-  else
-    uart0_queueString(card_number);
-
-  uart0_queueString("PRICE: ");
   uint16_t coffee_price = *amount * get_coffee_price(*selected_product);
+  uart0_queueString("PAYMENT: ");
+  if(*paid_cash){
+    increment_operating_data(CASH_AMOUNT, coffee_price);
+    uart0_queueString("CASH\n");
+  }else{
+    increment_operating_data(CARD_AMOUNT, coffee_price);
+    uart0_queueString(card_number);
+  }
+  uart0_queueString("PRICE: ");
   write_num(coffee_price, &uart_tx_queue);
   uart0_queueString("\n");
 
