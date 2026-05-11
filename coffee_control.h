@@ -23,20 +23,32 @@
 #include "../frt10/inc/queue.h"
 
 /***************** Defines ********************/
+#define SECOND          1000 
 
-
+#define NOF_PRODUCTS    3
 #define PROD_DISP_SPEED 2500
 #define PRICE_INDEX     28
 #define PRICE_INDEX_F   25
+
+#define CW_CASH         20
+#define CCW_CASH        5
+
+#define CHANGE_PERIOD  250
+
+#define LOADING_CHAR  0xFF
 
 #define GRIND_INTERVAL 7500 / 16
 #define BREW_INTERVAL 14000 / 16
 #define FROTH_INTERVAL 6200 / 16
 
-#define FILTER_FREQ 10
-#define START_SPEED 0.6 / FILTER_FREQ
-#define LATER_SPEED 14.5 / FILTER_FREQ
-#define SPEED_CHANGE 3*START_SPEED*FILTER_FREQ 
+#define FILTER_TIMEOUT 5000
+
+#define OP_FREQ     10
+#define START_SPEED 0.6 / OP_FREQ
+#define LATER_SPEED 14.5 / OP_FREQ
+#define SPEED_CHANGE 3*START_SPEED*OP_FREQ
+
+
 
 
 typedef enum {
@@ -50,7 +62,6 @@ typedef enum {
     FROTH_MILK,
     BREW_FILTER,
     REMOVE_CUP,
-    CUP_ABORTED,
     FINISH_PROD
 } MACHINE_STATES_t;
 

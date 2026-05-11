@@ -32,6 +32,7 @@
 
 #define CLEAR_LCD     0x7F
 #define LCD_LINE2     16
+#define LCD_LINE1     0
 
 #define SET_DDRAM_CMD 0x80
 #define LCD_OFFSET    0x40
