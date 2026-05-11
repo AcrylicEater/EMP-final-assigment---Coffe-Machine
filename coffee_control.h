@@ -22,6 +22,7 @@
 #include "../frt10/inc/semphr.h"
 #include "../frt10/inc/queue.h"
 
+
 /***************** Defines ********************/
 #define SECOND          1000 
 
@@ -48,9 +49,6 @@
 #define LATER_SPEED 14.5 / OP_FREQ
 #define SPEED_CHANGE 3*START_SPEED*OP_FREQ
 
-
-
-
 typedef enum {
     SEL_PRODUCT,
     SEL_PAYMENT,
@@ -72,14 +70,91 @@ typedef enum {
 } COFFEE_t;
 
 
-
 /***************** Functions ******************/
 
 void userflow_Task(void *pvParameters);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
-*   Function : formats the systick count
+*   Function : Main control task for the userflow
+******************************************************************************/
+
+void select_product(MACHINE_STATES_t *state_p, COFFEE_t *selected_product_p);
+/*****************************************************************************
+*   Input    : pointer to state and to selected product
+*   Output   : writes to lcd and selects product
+*   Function : state function for selecting product
+******************************************************************************/
+
+void select_payment(MACHINE_STATES_t *state_p);
+/*****************************************************************************
+*   Input    : pointer to state
+*   Output   : writes to lcd
+*   Function : state function for selecting payment type
+******************************************************************************/
+
+void enter_card(MACHINE_STATES_t *state_p, char *card_number);
+/*****************************************************************************
+*   Input    : pointer to state and the card number
+*   Output   : writes to lcd and card number
+*   Function : state function for entering card details
+******************************************************************************/
+
+void enter_cash(MACHINE_STATES_t *state_p, COFFEE_t *select_product, uint16_t *paid_cash);
+/*****************************************************************************
+*   Input    : pointer to state, selected product and the paid amount of cash
+*   Output   : writes to lcd and saves the amount of paid cash
+*   Function : state function for inputting cash
+******************************************************************************/
+
+void return_change(MACHINE_STATES_t *state_p, uint16_t change);
+/*****************************************************************************
+*   Input    : pointer to state, and the amount of change to be returned
+*   Output   : writes to lcd and blinks green LED
+*   Function : state function for returning change
+******************************************************************************/
+
+void wait_for_cup(MACHINE_STATES_t *state_p, COFFEE_t *selected_product);
+/*****************************************************************************
+*   Input    : pointer to state and selected product
+*   Output   : writes to lcd
+*   Function : state function for prompting the user to place cup
+******************************************************************************/
+
+void brew_espresso(MACHINE_STATES_t *state_p, COFFEE_t *selected_product);
+/*****************************************************************************
+*   Input    : pointer to state and selected product
+*   Output   : writes to lcd and controls red and yellow LED
+*   Function : state function for brewing espresso
+******************************************************************************/
+
+void froth_milk(MACHINE_STATES_t *state_p);
+/*****************************************************************************
+*   Input    : pointer to state
+*   Output   : writes to lcd and controls green LED
+*   Function : state function for frothing milk for latte
+******************************************************************************/
+
+
+void brew_filter(MACHINE_STATES_t *state_p, uint16_t paid_cash, uint16_t *amount);
+/*****************************************************************************
+*   Input    : pointer to state, the amount of paid cash and a pointer to the amount of product created
+*   Output   : writes to lcd and controls red LED, aswell as saving amount produced
+*   Function : state function for brewing filter coffee
+******************************************************************************/
+
+void remove_cup(MACHINE_STATES_t* state_p);
+/*****************************************************************************
+*   Input    : pointer to state
+*   Output   : writes to lcd
+*   Function : state function for prompting the user to remove their cup
+******************************************************************************/
+
+void finish_prod(MACHINE_STATES_t* state_p, COFFEE_t* selected_product, char *card_number, uint16_t *paid_cash, uint16_t *amount);
+/*****************************************************************************
+*   Input    : pointer to state, selected product, card number and amount of paidcash+product produced
+*   Output   : writes a transaction report to UART
+*   Function : state function for ending production by sending a report to uart
 ******************************************************************************/
 
 #endif

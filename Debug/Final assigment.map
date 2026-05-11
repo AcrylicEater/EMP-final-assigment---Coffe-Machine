@@ -1,7 +1,7 @@
 ******************************************************************************
                   TI ARM Linker PC v20.2.7                     
 ******************************************************************************
->> Linked Mon May 11 10:14:12 2026
+>> Linked Mon May 11 11:46:30 2026
 
 OUTPUT FILE NAME:   <Final assigment.out>
 ENTRY POINT SYMBOL: "_c_int00_noargs"  address: 000056a9
@@ -263,8 +263,8 @@ UNDEFED   _system_post_cinit
 0000574f  _system_pre_init                   
 00005753  abort                              
 ffffffff  binit                              
-00002491  brew_espresso                      
-000026ed  brew_filter                        
+0000257d  brew_espresso                      
+000027d9  brew_filter                        
 00004fa9  buttons_init                       
 20001cc4  data_wr_mutex                      
 00003d5f  delay_us                           
@@ -273,10 +273,10 @@ ffffffff  binit
 20001cc8  encoder_queue                      
 20001ccc  encoder_sem                        
 20001cd0  encoder_task                       
-000020ab  enter_card                         
-00002255  enter_cash                         
-000029c1  finish_prod                        
-000025cd  froth_milk                         
+00002197  enter_card                         
+00002341  enter_cash                         
+00002aa9  finish_prod                        
+000026b9  froth_milk                         
 00000000  g_pfnVectors                       
 00004115  get_coffee_price                   
 000041ff  get_operating_data                 
@@ -320,12 +320,12 @@ ffffffff  binit
 20001f00  pxCurrentTCB                       
 00004d41  pxPortInitialiseStack              
 20001cec  red_led_queue                      
-00002943  remove_cup                         
+00002a2f  remove_cup                         
 00003a35  report_data                        
-0000238f  return_change                      
+0000247b  return_change                      
 20001f5b  rx_tail                            
-0000205b  select_payment                     
-00001f9d  select_product                     
+00002147  select_payment                     
+00002089  select_product                     
 00004147  set_coffee_price                   
 000056dd  strncmp                            
 00003d21  timer0_init                        
@@ -342,7 +342,7 @@ ffffffff  binit
 000052c9  ulPortGetIPSR                      
 000017e9  ulTaskGenericNotifyTake            
 00001e59  ulTaskGenericNotifyValueClear      
-00002b2d  userflow_Task                      
+00001f9d  userflow_Task                      
 00004f5f  uxListRemove                       
 000035cd  uxQueueMessagesWaiting             
 00003603  uxQueueMessagesWaitingFromISR      
@@ -383,7 +383,7 @@ ffffffff  binit
 00000801  vTaskSuspend                       
 00000b33  vTaskSuspendAll                    
 00000f39  vTaskSwitchContext                 
-000023f1  wait_for_cup                       
+000024dd  wait_for_cup                       
 000042eb  write_num                          
 00004271  write_price                        
 000049eb  xPortGetFreeHeapSize               
@@ -474,18 +474,18 @@ address   name
 00001cb1  vTaskGenericNotifyGiveFromISR      
 00001e09  xTaskGenericNotifyStateClear       
 00001e59  ulTaskGenericNotifyValueClear      
-00001f9d  select_product                     
-0000205b  select_payment                     
-000020ab  enter_card                         
-00002255  enter_cash                         
-0000238f  return_change                      
-000023f1  wait_for_cup                       
-00002491  brew_espresso                      
-000025cd  froth_milk                         
-000026ed  brew_filter                        
-00002943  remove_cup                         
-000029c1  finish_prod                        
-00002b2d  userflow_Task                      
+00001f9d  userflow_Task                      
+00002089  select_product                     
+00002147  select_payment                     
+00002197  enter_card                         
+00002341  enter_cash                         
+0000247b  return_change                      
+000024dd  wait_for_cup                       
+0000257d  brew_espresso                      
+000026b9  froth_milk                         
+000027d9  brew_filter                        
+00002a2f  remove_cup                         
+00002aa9  finish_prod                        
 00002c95  xQueueGenericReset                 
 00002d67  xQueueGenericCreate                
 00002e37  xQueueCreateMutex                  

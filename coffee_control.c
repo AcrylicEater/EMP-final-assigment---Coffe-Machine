@@ -15,6 +15,57 @@ const char *options[] = {
     "2:LATTE       kr",
     "3:FILTER   kr/cl"};
 
+void userflow_Task(void *pvParameters)
+{
+  MACHINE_STATES_t state = SEL_PRODUCT;
+  COFFEE_t selected_product;
+  uint16_t paid_cash;
+  char card_number[16];
+  uint16_t amount;
+
+  while (1)
+  {
+    switch (state)
+    {
+    case SEL_PRODUCT:
+      paid_cash = 0;
+      select_product(&state, &selected_product);
+      break;
+    case SEL_PAYMENT:
+      select_payment(&state);
+      break;
+    case ENTER_CARD:
+      enter_card(&state, card_number);
+      break;
+    case ENTER_CASH:
+      enter_cash(&state, &selected_product, &paid_cash);
+      break;
+    case RETURN_CHANGE:
+      return_change(&state, paid_cash - get_coffee_price(selected_product));
+      break;
+    case WAIT_CUP:
+      wait_for_cup(&state, &selected_product);
+      break;
+    case BREW_ESPRESSO:
+      amount = 1;
+      brew_espresso(&state, &selected_product);
+      break;
+    case FROTH_MILK:
+      froth_milk(&state);
+      break;
+    case BREW_FILTER:
+      brew_filter(&state, paid_cash, &amount);
+      break;
+    case REMOVE_CUP:
+      remove_cup(&state);
+      break;
+    case FINISH_PROD:
+      finish_prod(&state, &selected_product, card_number, &paid_cash, &amount);
+      break;
+    }
+  }
+}
+
 
 void select_product(MACHINE_STATES_t *state_p, COFFEE_t *selected_product_p)
 {
@@ -472,53 +523,3 @@ void finish_prod(MACHINE_STATES_t* state_p, COFFEE_t* selected_product, char *ca
   *state_p = SEL_PRODUCT;
 }
 
-void userflow_Task(void *pvParameters)
-{
-  MACHINE_STATES_t state = SEL_PRODUCT;
-  COFFEE_t selected_product;
-  uint16_t paid_cash;
-  char card_number[16];
-  uint16_t amount;
-  
-  while (1)
-  {
-    switch (state)
-    {
-    case SEL_PRODUCT:
-      paid_cash = 0;
-      select_product(&state, &selected_product);
-      break;
-    case SEL_PAYMENT:
-      select_payment(&state);
-      break;
-    case ENTER_CARD:
-      enter_card(&state, card_number);
-      break;
-    case ENTER_CASH:
-      enter_cash(&state, &selected_product, &paid_cash);
-      break;
-    case RETURN_CHANGE:
-      return_change(&state, paid_cash - get_coffee_price(selected_product));
-      break;
-    case WAIT_CUP:
-      wait_for_cup(&state, &selected_product);
-      break;
-    case BREW_ESPRESSO:
-      amount = 1;
-      brew_espresso(&state, &selected_product);
-      break;
-    case FROTH_MILK:
-      froth_milk(&state);
-      break;
-    case BREW_FILTER:
-      brew_filter(&state, paid_cash, &amount);
-      break;
-    case REMOVE_CUP:
-      remove_cup(&state);
-      break;
-    case FINISH_PROD:
-      finish_prod(&state, &selected_product, card_number, &paid_cash, &amount);
-      break;
-    }
-  }
-}

@@ -20,7 +20,6 @@
 #include "tm4c123gh6pm.h"
 #include "../frt10/inc/FreeRTOS.h"
 #include "../frt10/inc/task.h"
-#include "../frt10/inc/semphr.h"
 #include "../frt10/inc/queue.h"
 
 /***************** Defines ********************/
@@ -47,14 +46,14 @@ void buttons_init(void);
 void SW_1_Task(void *pvParameters);
 /**********************************************
 * Input: none
-* Output: pulses on queue
-* Function: parses pulses and direction of pulse of buttons
+* Output: press on queue
+* Function: parsed key release and press for SW1
 ***********************************************/
 
 void SW_2_Task(void *pvParameters);
 /**********************************************
 * Input: none
-* Output: pulses on queue
-* Function: parses pulses and direction of pulse of buttons
+* Output: press on queue
+* Function: parsed key release and press for SW1
 ***********************************************/
 #endif

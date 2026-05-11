@@ -15,25 +15,22 @@ void buttons_init(void){
 
 void SW_1_Task(void *pvParamerters){
     uint8_t state = STATE_RELEASED;
-    uint8_t led_msg;
     while(1){
         switch (state)
         {
-            case STATE_RELEASED:
+            case STATE_RELEASED: //if we are released, we look for the button being pressed
                 if (!(GPIO_PORTF_DATA_R & SW_1_PIN)){
                     state = STATE_PRESSED;
                     xQueueOverwrite(SW_1_queue, &state);
 
                 }
                 break;
-
-            case STATE_PRESSED:
+            case STATE_PRESSED: //if we are pressed, we look for the button being released
                 if (GPIO_PORTF_DATA_R & SW_1_PIN){
                     state = STATE_RELEASED;
                     xQueueOverwrite(SW_1_queue, &state);
                 }
         }
-
         vTaskDelay(pdMS_TO_TICKS(DEBOUNCE_DELAY_MS)); //debouncing delay
     }        
 }
